@@ -1,5 +1,5 @@
 -- CREATE DB
-CREATE DATABASE quanta;
+--CREATE DATABASE quanta;
 
 -- CREATE TYPES
 CREATE TYPE privacy_level AS ENUM ('public', 'private');

@@ -10,6 +10,6 @@ services:
       POSTGRES_PASSWORD: test
       POSTGRES_DB: quanta
     ports:
-      - 5432:5432
+      - 5555:5432
     volumes:
       - ./sql_scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
