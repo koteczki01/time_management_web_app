@@ -1,0 +1,15 @@
+version: '0.1'
+
+services:
+
+  quanta.psql:
+    image: postgres:12.18
+    container_name: quanta-psql
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: quanta
+    ports:
+      - 5432:5432
+    volumes:
+      - ./sql_scripts/init.sql:/docker-entrypoint-initdb.d/init.sql

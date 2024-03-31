@@ -5,7 +5,7 @@ import configparser
 
 
 config = configparser.ConfigParser()
-config.read("config.ini")
+config.read("../config.ini")
 
 DATABASE_URL = config["PSQL"]["DATABASE_URL"]
 DATABASE = config["PSQL"]["DATABASE"]
