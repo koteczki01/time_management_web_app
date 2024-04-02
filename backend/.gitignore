@@ -1,5 +1,6 @@
 venv
-config.ini
+config*
+config-docker.ini
 __pycache__/
 ../.DS_Store
 ../.idea/

@@ -1,0 +1,27 @@
+services:
+  quanta-db-service:
+    image: postgres:12.18
+    container_name: psql-service
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: quanta
+    ports:
+      - "5555:5432" # maps port 5555 to 5432
+    volumes:
+      - ./sql_scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  quanta-api-service:
+    container_name: api-service
+    build: ./rest_api_service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./rest_api_service:/usr/src/app/rest_api_service
+      - ./config.ini:/usr/src/app/config.ini
+    environment:
+      - MODULE_NAME=main
+      - VARIABLE_NAME=app
+      - PORT=8000
+    depends_on:
+      - quanta-db-service

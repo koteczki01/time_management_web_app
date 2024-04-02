@@ -1,4 +1,3 @@
-import logging
 from typing import Type
 import models
 from sqlalchemy.orm import Session
