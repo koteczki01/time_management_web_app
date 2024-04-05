@@ -8,16 +8,18 @@ definePageMeta({
   <h1>Log in</h1>
   <form class="auth-form">
     <label>User:</label>
-      <input type="text" required />
+    <input type="text" required>
     <label>Password:</label>
-      <input type="password" required />
+    <input type="password" required>
     <div class="links">
       <a href="#" class="forgot-password">Forgot Password?</a>
       <a href="#" class="create-account">Create an account!</a>
     </div>
-      <div class="login-button-container">
-        <button type="submit" class="login-button">Log in</button>
-      </div>
+    <div class="login-button-container">
+      <button type="submit" class="login-button">
+        Log in
+      </button>
+    </div>
   </form>
 </template>
 
@@ -67,16 +69,15 @@ input {
 }
 
 h1 {
-  color: #fff; 
-  font-size: 3rem; 
-  -webkit-text-stroke: 1px rgb(85, 68, 76); 
+  color: #fff;
+  font-size: 3rem;
+  -webkit-text-stroke: 1px rgb(85, 68, 76);
   text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
 }
 
 label{
-  color: #fff; 
-  font-size: 1.8rem; 
-  -webkit-text-stroke: 0.8px rgb(85, 68, 76); 
+  color: #fff;
+  font-size: 1.8rem;
+  -webkit-text-stroke: 0.8px rgb(85, 68, 76);
 }
-
 </style>
