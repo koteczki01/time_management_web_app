@@ -9,18 +9,21 @@
     </div>
   </div>
   <div class="auth-container">
+    <div class="auth-card">
+        <slot />
+      </div>
   </div>
   <footer></footer>
 </template>
 
 <style scoped>
 .auth-container {
-  opacity: 0.5;
   height: 100vh; 
   display: flex;
   background-image: url('public/background.jpg');
   background-size: cover;
   align-items: center;
+  justify-content: center;
 }
 
 .top-bar {
@@ -63,4 +66,17 @@ footer{
   border-top: 2px solid #42A5F5;
 }
 
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 25vw;
+  height: 83vh;
+  background-color: #FEEAEAEA;
+  padding: 2em;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 </style>
