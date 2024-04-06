@@ -18,17 +18,22 @@ definePageMeta({
         <input id="email" type="text" required>
       </div>
 
-      <div class="form-group">
+      <div class="group">
+
+     
+      <div class="form-group-one">
         <label for="password">Password:</label>
         <input id="password" type="password" required="true">
       </div>
 
-      <div class="form-group">
+      <div class="form-group-one">
         <label for="repeat-password">Repeat Password:</label>
         <input id="repeat-password" type="password" required>
       </div>
+       </div>
 
-      <div class="form-group">
+      <div class="group">
+      <div class="form-group-one">
         <label for="dob">Date of Birth:</label>
         <input id="dob" type="date">
       </div>
@@ -37,6 +42,7 @@ definePageMeta({
         <input id="agree-terms" type="checkbox">
         <label for="agree-terms">I read and agree with the terms and conditions</label>
       </div>
+    </div>
 
       <div class="button-container">
         <button type="submit">
@@ -51,6 +57,7 @@ definePageMeta({
 </template>
 
 <style scoped>
+
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -58,6 +65,21 @@ definePageMeta({
 }
 
 .form-group {
+  margin-bottom: 1rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.form-group-one {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+  width: 50%;
   margin-bottom: 1rem;
 }
 
@@ -95,6 +117,7 @@ h1 {
   font-size: 3rem;
   -webkit-text-stroke: 1px rgb(85, 68, 76);
   text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
+  text-align: center;
 }
 
 label {
@@ -107,5 +130,6 @@ label {
   display: flex;
   align-items: center;
   margin-left: 2rem;
+  width: 50%;
 }
 </style>
