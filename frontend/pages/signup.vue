@@ -5,37 +5,49 @@ definePageMeta({
 </script>
 
 <template>
-  <h1>Create an Account</h1>
-  <form class="auth-form">
-    <label>Username:</label>
-    <input type="text" required />
-    <label>E-Mail:</label>
-    <input type="text" required />
-    <div class="pass-form">
-      <div class="password-container">
-        <label>Password:</label>
-        <input type="password" id="password" required />
+  <section>
+    <h1>Create an Account</h1>
+    <form class="auth-form">
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input id="username" type="text" required>
       </div>
-      <div class="password-container">
-        <label>Repeat Password:</label>
-        <input type="password" id="repeat-password" required />
+
+      <div class="form-group">
+        <label for="email">E-Mail:</label>
+        <input id="email" type="text" required>
       </div>
-    </div>
-    <div class="pass-form">
-      <div class="date-birth">
-        <label>Date of Birth:</label>
-        <input type="date">
+
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input id="password" type="password" required="true">
       </div>
-      <div class="checkbox-container flex items-center">
-        <input type="checkbox" id="agree-terms">
-        <label for="agree-terms" class="text">I read and agree with the terms and conditions</label>
+
+      <div class="form-group">
+        <label for="repeat-password">Repeat Password:</label>
+        <input id="repeat-password" type="password" required>
       </div>
-    </div>
-    <div class="login-button-container">
-      <button type="submit" class="login-button">Go Back</button>
-      <button type="submit" class="login-button">Register</button>
-    </div>
-  </form>
+
+      <div class="form-group">
+        <label for="dob">Date of Birth:</label>
+        <input id="dob" type="date">
+      </div>
+
+      <div class="checkbox-container">
+        <input id="agree-terms" type="checkbox">
+        <label for="agree-terms">I read and agree with the terms and conditions</label>
+      </div>
+
+      <div class="button-container">
+        <button type="submit">
+          Go Back
+        </button>
+        <button type="submit">
+          Register
+        </button>
+      </div>
+    </form>
+  </section>
 </template>
 
 <style scoped>
@@ -44,19 +56,29 @@ definePageMeta({
   flex-direction: column;
   width: 100%;
 }
-input {
+
+.form-group {
   margin-bottom: 1rem;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="date"] {
+  box-sizing: border-box;
   padding: 1rem;
+  width: 100%;
   border: 1px solid #ccc;
   border-radius: 20px;
   font-size: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
-.forgot-password, .create-account {
-  color: #887398;
-  font-size: 0.8rem;
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
 }
-.login-button {
+
+button {
   padding: 0.3rem;
   width: 200px;
   border: none;
@@ -67,51 +89,23 @@ input {
   font-size: 1.5rem;
   margin: 0.3rem;
 }
-.login-button-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+
 h1 {
-  color: #fff; 
-  font-size: 3rem; 
-  -webkit-text-stroke: 1px rgb(85, 68, 76); 
+  color: #fff;
+  font-size: 3rem;
+  -webkit-text-stroke: 1px rgb(85, 68, 76);
   text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
 }
+
 label {
-  color: #fff; 
-  font-size: 1.8rem; 
-  -webkit-text-stroke: 0.8px rgb(85, 68, 76); 
-}
-.pass-form {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-.date-birth {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 50%;
-}
-.password-container {
-  display: flex;
-  flex-direction: column;
-  width: 50%;
-  align-items: center; 
-  justify-content: center; 
-  margin-right: 2rem;
+  color: #fff;
+  font-size: 1.8rem;
+  -webkit-text-stroke: 0.8px rgb(85, 68, 76);
 }
 
 .checkbox-container {
   display: flex;
-  width: 50%;
-  align-items: center; 
-  justify-content: flex-start;
-  margin-left: 2rem; 
-}
-
-.text {
-  font-size: 1.3rem;
+  align-items: center;
+  margin-left: 2rem;
 }
 </style>
