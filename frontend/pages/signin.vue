@@ -7,10 +7,10 @@ definePageMeta({
 <template>
   <h1>Log in</h1>
   <form class="auth-form">
-    <label>User:</label>
-    <input type="text" required>
-    <label>Password:</label>
-    <input type="password" required>
+    <label for="user">User:</label>
+    <input type="text" id="user" required>
+    <label for="password">Password:</label>
+    <input type="password" id="password" required>
     <div class="links">
       <a href="#" class="forgot-password">Forgot Password?</a>
       <a href="#" class="create-account">Create an account!</a>
@@ -31,8 +31,8 @@ definePageMeta({
 }
 
 input {
-  margin-bottom: 1em;
-  padding: 1em;
+  margin-bottom: 1rem;
+  padding: 1rem;
   border: 1px solid #ccc;
   border-radius: 20px;
   font-size: 1rem;
@@ -43,7 +43,7 @@ input {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  margin-bottom: 2em;
+  margin-bottom: 2rem;
 }
 
 .forgot-password, .create-account {
@@ -52,7 +52,7 @@ input {
 }
 
 .login-button {
-  padding: 0.3em;
+  padding: 0.3rem;
   width: 200px;
   border: none;
   border-radius: 25px;

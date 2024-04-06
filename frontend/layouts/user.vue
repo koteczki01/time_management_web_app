@@ -71,10 +71,10 @@ footer{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 25vw;
+  width: 350px;
   height: 83vh;
   background-color: #FEEAEAEA;
-  padding: 2em;
+  padding: 2rem;
   border-radius: 20px;
   border: 1px solid #ccc;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
