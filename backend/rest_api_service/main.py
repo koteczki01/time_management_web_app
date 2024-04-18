@@ -109,10 +109,14 @@ async def get_all_events_by_user_id_ongoing_in_specified_time(user_id: int, star
                                                               end: datetime.datetime, response: Response,
                                                               db: Session = Depends(get_db)):
     try:
-        return [event for event in
-                db.query(models.DBEvent).join(models.DBEventParticipants).filter(
-                    models.DBEventParticipants.user_id == user_id).all() if event.event_date_start<=end
-                and event.event_date_end >= start]
+        events = []
+        for event in db.query(models.DBEvent).join(models.DBEventParticipants).filter(
+                models.DBEventParticipants.user_id == user_id).all():
+            while event is not None and event.event_date_start <= end and event.event_date_end >= start:
+                events += [event]
+                event = event.next_event()
+        return events
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occured: {e}"}
+# 2024-10-10T10:10:10

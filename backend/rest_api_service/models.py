@@ -2,8 +2,7 @@ from database import Base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, TIMESTAMP, Date, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ENUM
-from datetime import datetime, timezone
-
+from datetime import datetime, timezone, timedelta
 
 # Define your ENUM types
 privacy_level = ENUM('public', 'private', name="privacy_level", create_type=False)
@@ -11,11 +10,11 @@ status = ENUM('pending', 'accepted', name="status", create_type=False)
 recurrence_rule = ENUM('daily', 'weekly', 'monthly', 'yearly', name="recurrence_rule", create_type=False)
 event_role = ENUM('host', 'member', name="event_role", create_type=False)
 
-
 association_user_friendships = Table('association_user_friendships', Base.metadata,
-    Column('user_id', Integer, ForeignKey('db_user.user_id'), primary_key=True),
-    Column('friend_id', Integer, ForeignKey('db_user.user_id'), primary_key=True)
-)
+                                     Column('user_id', Integer, ForeignKey('db_user.user_id'), primary_key=True),
+                                     Column('friend_id', Integer, ForeignKey('db_user.user_id'), primary_key=True)
+                                     )
+
 
 class DBCategory(Base):
     __tablename__ = 'db_category'
@@ -69,6 +68,40 @@ class DBEvent(Base):
     creator = relationship("DBUser", back_populates="events_created")
     categories = relationship("DBCategory", secondary="db_event_category", back_populates="events")
     participants = relationship("DBEventParticipants", back_populates="event")
+
+    def __init__(self, event):
+        self.event_id = event.event_id
+        self.created_by = event.created_by
+        self.event_name = event.event_name
+        self.event_description = event.event_description
+        self.event_date_start = event.event_date_start
+        self.event_date_end = event.event_date_end
+        self.event_location = event.event_location
+        self.privacy = event.privacy
+        self.recurrence = event.recurrence
+        self.next_event_date = event.next_event_date
+
+    def replace_date(self, date: datetime):
+        if self.recurrence == "daily":
+            return date+timedelta(days=1)
+        if self.recurrence == "weekly":
+            return date+timedelta(weeks=1)
+        if self.recurrence == "monthly":
+            if date.month == 12:
+                return date.replace(month=1, year=date.year+1)
+            return date.replace(month=date.month+1)
+        if self.recurrence == "yearly":
+            return date.replace(year=date.year+1)
+
+    def next_event(self):
+        if recurrence_rule is None:
+            # I know it impossible, but I don't know why xD
+            return None
+        next_instance = DBEvent(self)
+        next_instance.event_date_start = next_instance.replace_date(next_instance.event_date_start)
+        next_instance.event_date_end = next_instance.replace_date(next_instance.event_date_end)
+        next_instance.next_event_date = next_instance.replace_date(next_instance.next_event_date)
+        return next_instance
 
 
 class DBEventCategory(Base):
