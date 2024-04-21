@@ -66,12 +66,6 @@ async def delete_user(db: Session, user_id: int) -> bool:
     return False
 
 
-
-
-
-
-
-
 async def get_all_categories(db: Session) -> list[Type[models.DBCategory]] | None:
     categories = db.query(models.DBCategory).all()
 
