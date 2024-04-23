@@ -83,4 +83,5 @@ async def accept_friend_request(request_id: int, db: Session = Depends(get_db)):
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Friend request has already been accepted")
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Friend request not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Friend request not found")   
+        

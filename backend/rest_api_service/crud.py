@@ -26,3 +26,5 @@ async def get_all_participants(db: Session) -> list[Type[models.DBEventParticipa
     participants = db.query(models.DBEventParticipants).all()
 
     return participants
+
+

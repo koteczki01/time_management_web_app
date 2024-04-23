@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\backend",
+    "\\backend\\rest_api_service",
+    "\\backend\\sql_scripts"
+  ],
+  "SelectedNode": "\\backend\\rest_api_service\\main.py",
+  "PreviewInSolutionExplorer": false
+}
