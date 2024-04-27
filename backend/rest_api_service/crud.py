@@ -37,7 +37,7 @@ async def get_user_by_id(db: Session, user_id: int) -> Type[models.DBUser] | Non
     except NoResultFound:
         return None
     except Exception as e:
-        return e
+        return None
 
 
 async def get_user_by_username(db: Session, username: str) -> Type[models.DBUser] | None:
@@ -47,7 +47,7 @@ async def get_user_by_username(db: Session, username: str) -> Type[models.DBUser
     except NoResultFound:
         return None
     except Exception as e:
-        return e
+        return None
 
 
 async def create_user(db: Session, username: str, email: str, password_hash: str, birthday: datetime.datetime) -> models.DBUser | None:
@@ -66,9 +66,9 @@ async def create_user(db: Session, username: str, email: str, password_hash: str
         db.commit()
         db.refresh(user)
         return user
-    except Exception as e:
+    except Exception:
         db.rollback()  
-        return e  
+        return None 
 
 
 async def update_user_last_login(db: Session, id : int) -> None:
@@ -78,6 +78,6 @@ async def update_user_last_login(db: Session, id : int) -> None:
             user.last_login = datetime.datetime.now()
             db.commit()
             db.refresh(user)
-    except Exception as e:
+    except Exception:
         db.rollback()  
-        return e
+        return None

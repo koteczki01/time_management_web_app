@@ -78,7 +78,7 @@ async def login(login_schema: UserLoginSchema, response: Response, db: Session =
         else:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
     except HTTPException as http_exception:
-        return http_exception
+        return None
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": f"An error occurred: {e}"}
@@ -101,7 +101,7 @@ async def register(user : UserRegisterSchema, response: Response, db: Session = 
 
         return new_user
     except HTTPException as http_exception:
-        return http_exception
+        return None
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
