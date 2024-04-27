@@ -6,6 +6,7 @@ from database import SessionLocal
 from sqlalchemy.orm import Session
 from schemas import *
 from schemas import UserLoginSchema, UserRegisterSchema
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 
 app = FastAPI()
@@ -105,3 +106,5 @@ async def register(user : UserRegisterSchema, response: Response, db: Session = 
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
+
+
