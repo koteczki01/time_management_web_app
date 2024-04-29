@@ -21,7 +21,7 @@ CREATE TABLE db_user(
     user_id SERIAL PRIMARY KEY,
     username varchar(45) NOT NULL,
     email varchar(60) NOT NULL,
-    password_hash varchar(60) NOT NULL,
+    password_hash varchar(255) NOT NULL,
     birthday date NOT NULL,
     created_at timestamp NOT NULL,
     last_login timestamp NOT NULL,
