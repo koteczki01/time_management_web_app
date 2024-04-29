@@ -10,7 +10,7 @@
     </div>
   </div>
   <div class="calendar-bar">
-    <div>
+    <div class="friends">
     <h1>Friends</h1>
     </div>
     <div>
@@ -35,13 +35,20 @@
     <h1>Sunday</h1>
     </div>
   </div>
+
 </template>
 
 <style>
+body{
+  margin: 0;
+}
+.friends{
+  background-color: #FFE8E8;
+}
 .top-bar {
   width: 100%;
-  height: 70px;
-  background-color: #FFF8F8;
+  height: 80px;
+  background-color: #FFE8E8;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -52,16 +59,17 @@
   color: #fff;
   -webkit-text-stroke: 1px rgb(85, 68, 76);
   text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
+ 
 }
 .logo{
-  height: 50px;
-  margin: 30px;
+  height: 60px;
+  margin: 20px;
 }
 .left-top-bar{
   font-size: 1.7rem;
   width: 100%;
   height: 50px;
-  background-color: #FFF6F6;
+  background-color: #FFE8E8;
   display: flex;
   font-family: 'Lao Muang Don', sans-serif;
   justify-content: left;
@@ -70,7 +78,7 @@
 .right-top-bar{
   width: 100%;
   height: 50px;
-  background-color: #FFF6F6;
+  background-color: #FFE8E8;
   display: flex;
   font-family: 'Lao Muang Don', sans-serif;
   justify-content: right;
@@ -83,36 +91,34 @@
     background-color: #9E7E9B;
     width: 40px;
     height: 40px;
-    border-radius: 20px;
+    border-radius: 25px;
     border: 0px;
     color: white;
     cursor: pointer;
-    -webkit-text-stroke: 1px rgb(85, 68, 76);
+    -webkit-text-stroke: 1x rgb(85, 68, 76);
     text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
-    font-size: 3.3rem;
-    padding: 0.3rem;
+    font-size: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .calendar-bar{
     width: 100%;
-    height: 50px;
+    height: 100vh;
     display: flex;
+    align-items: flex-start;
     justify-content: center;
-    align-items: center;
     border-bottom: 2px solid #CCB2C6;
-    widht: 1rem;
+    border-bottom: none;
 }
 .calendar-bar div{
     border-right: 2px solid #CCB2C6;
+    border-bottom: none;
     margin: 0px;
     width: 12.5%;
-    height: 60px;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 50px;
+    height: 100%;
 }
 .calendar-bar div h1{
     -webkit-text-stroke: 1px rgb(85, 68, 76);
@@ -121,4 +127,5 @@
     color: #fff;
     font-size: 1.7rem;
 }
+
 </style>
