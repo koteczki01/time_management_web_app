@@ -147,3 +147,39 @@ async def create_category(category: str, response: Response, db: Session = Depen
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
+
+
+@app.post("/event/{event_id}/update/{changed_data}", tags=['Event'], status_code=status.HTTP_200_OK)
+async def update_event(event_id: int, changed_data: str, response: Response, db: Session = Depends(get_db)):
+    try:
+        await crud.update_event(event_id=event_id, changed_data=changed_data, db=db)
+    except Exception as e:
+        response.status_code = 500
+        return {"message": f"An error occurred: {e}"}
+
+
+@app.post("/category/{category_id}/update/{changed_data}", tags=['Category'], status_code=status.HTTP_200_OK)
+async def update_category(category_id: int, changed_data: str, response: Response, db: Session = Depends(get_db)):
+    try:
+        await crud.update_category(category_id=category_id, changed_data=changed_data, db=db)
+    except Exception as e:
+        response.status_code = 500
+        return {"message": f"An error occurred: {e}"}
+
+
+@app.post("/event/{event_id}/delete", tags=['Event'], status_code=status.HTTP_200_OK)
+async def delete_event(event_id: int, response: Response, db: Session = Depends(get_db)):
+    try:
+        await crud.delete_event(event_id=event_id, db=db)
+    except Exception as e:
+        response.status_code = 500
+        return {"message": f"An error occurred: {e}"}
+
+
+@app.post("/category/{category_id}/delete", tags=['Category'], status_code=status.HTTP_200_OK)
+async def delete_category(category_id: int, response: Response, db: Session = Depends(get_db)):
+    try:
+        await crud.delete_category(category_id=category_id, db=db)
+    except Exception as e:
+        response.status_code = 500
+        return {"message": f"An error occurred: {e}"}
