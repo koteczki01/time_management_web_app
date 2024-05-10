@@ -71,6 +71,7 @@ async def create_required_event_participants(db_event, db):
 async def create_event_with_required_associations(event: str, db: Session):
     db_event = models.DBEvent.create(event)
     db.add(db_event)
+    db.commit()
     await create_required_event_participants(db_event=db_event, db=db)
     for category_id in json.loads(event)["categories"]:
         db.add(models.DBEventCategory(event_id=db_event.event_id, category_id=category_id))
@@ -99,8 +100,6 @@ async def update_event(event_id: int, changed_data: str, db: Session):
     new_data = json.loads(changed_data)
     if "event_name" in new_data:
         event.event_name = new_data["event_name"]
-    if "event_id" in new_data:
-        event.event_id = new_data["event_id"]
     if "created_by" in new_data:
         event.created_by = new_data["created_by"]
     if "event_description" in new_data:
@@ -112,9 +111,11 @@ async def update_event(event_id: int, changed_data: str, db: Session):
     if "event_location" in new_data:
         event.event_location = new_data["event_location"]
     if "privacy" in new_data:
-        is_changed = event.privacy == new_data["privacy"]
+        previous_privacy = event.privacy
         event.privacy = new_data["privacy"]
-        if is_changed:
+        if not previous_privacy == event.privacy:
+            for participant in await get_all_event_participants(event_id=event.event_id, db=db):
+                db.delete(participant)
             await create_required_event_participants(db_event=event, db=db)
     if "recurrence" in new_data:
         event.recurrence = new_data["recurrence"]
@@ -130,8 +131,6 @@ async def update_event(event_id: int, changed_data: str, db: Session):
 async def update_category(category_id: int, changed_data: str, db: Session):
     category = db.get(models.DBCategory, category_id)
     new_data = json.loads(changed_data)
-    if "category_id" in new_data:
-        category.category_id = new_data["category_id"]
     if "category_name" in new_data:
         category.category_name = new_data["category_name"]
     if "category_description" in new_data:

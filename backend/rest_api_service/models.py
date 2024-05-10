@@ -36,7 +36,7 @@ class DBCategory(Base):
     def create(category: str):
         category = json.loads(category)
         return DBCategory(
-            category_id=category['category_id'],
+            category_id=None,
             category_name=category['category_name'],
             category_description=category['category_description'])
 
@@ -108,7 +108,7 @@ class DBEvent(Base):
     def create(event: str):
         event = json.loads(event)
         return DBEvent(
-            event['event_id'],
+            None,
             event['created_by'],
             event['event_name'],
             event['event_description'],
