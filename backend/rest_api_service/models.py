@@ -81,7 +81,7 @@ class EventRequest(BaseModel):
     privacy: str | None = None
     recurrence: str | None = None
     next_event_date: datetime | None = None
-    categories: list | None = None
+    categories: list[int] | None = None
 
 
 class DBEvent(Base):
