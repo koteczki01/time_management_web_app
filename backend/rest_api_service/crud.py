@@ -81,3 +81,15 @@ async def update_user_last_login(db: Session, id : int) -> None:
     except Exception:
         db.rollback()  
         return None
+
+async def create_friend_request(db: Session, sender_id: int, recipient_id: int) -> DBUserFriendship:
+    friendship = DBUserFriendship(user1_id=sender_id, user2_id=recipient_id, friendship_status=FriendshipStatus.pending)
+    db.add(friendship)
+    db.commit()
+    return friendship
+
+async def get_friend_request(db: Session, sender_id: int) -> DBUserFriendship:
+    friendship = db.query(DBUserFriendship).filter(
+        (DBUserFriendship.user1_id == sender_id) | (DBUserFriendship.user2_id == sender_id)
+    ).filter_by(friendship_status=FriendshipStatus.pending).first()
+    return friendship
