@@ -52,7 +52,7 @@ class DBUser(Base):
     user_id = Column(Integer, primary_key=True)
     username = Column(String(45), nullable=False, unique=True)
     email = Column(String(60), nullable=False, unique=True)
-    password_hash = Column(String(60), nullable=False)
+    password_hash = Column(String(255), nullable=False)
     birthday = Column(Date, nullable=False)
     created_at = Column(TIMESTAMP, nullable=False)
     last_login = Column(TIMESTAMP, nullable=False)
