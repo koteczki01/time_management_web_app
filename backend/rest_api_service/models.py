@@ -1,7 +1,8 @@
 import json
-
+from typing import Optional
+from pydantic import BaseModel
 from database import Base
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, TIMESTAMP, Date, Table
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, TIMESTAMP, Date, Table, Sequence
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ENUM
 from datetime import datetime, timezone, timedelta
@@ -18,10 +19,15 @@ association_user_friendships = Table('association_user_friendships', Base.metada
                                      )
 
 
+class CategoryRequest(BaseModel):
+    category_name: str | None = None
+    category_description: str | None = None
+
+
 class DBCategory(Base):
     __tablename__ = 'db_category'
 
-    category_id = Column(Integer, primary_key=True)
+    category_id = Column(Integer, Sequence('db_category_id_seq'), primary_key=True)
     category_name = Column(String(45), unique=True)
     category_description = Column(String(255))
 
@@ -33,12 +39,11 @@ class DBCategory(Base):
         self.category_description = category_description
 
     @staticmethod
-    def create(category: str):
-        category = json.loads(category)
+    def create(category: CategoryRequest):
         return DBCategory(
             category_id=None,
-            category_name=category['category_name'],
-            category_description=category['category_description'])
+            category_name=category.category_name,
+            category_description=category.category_description)
 
 
 class DBUser(Base):
@@ -66,10 +71,23 @@ class DBUser(Base):
     )
 
 
+class EventRequest(BaseModel):
+    created_by: int | None = None
+    event_name: str | None = None
+    event_description: str | None = None
+    event_date_start: datetime | None = None
+    event_date_end: datetime | None = None
+    event_location: str | None = None
+    privacy: str | None = None
+    recurrence: str | None = None
+    next_event_date: datetime | None = None
+    categories: list | None = None
+
+
 class DBEvent(Base):
     __tablename__ = 'db_event'
 
-    event_id = Column(Integer, primary_key=True)
+    event_id = Column(Integer, Sequence('db_event_id_seq'), primary_key=True)
     created_by = Column(Integer, ForeignKey('db_user.user_id'), nullable=False)
     event_name = Column(String(60), nullable=False)
     event_description = Column(String(255))
@@ -89,7 +107,7 @@ class DBEvent(Base):
         if self.privacy == "private":
             return [self.created_by]
         if self.privacy == "public":
-            return [self.created_by]  # +friends# TODO: read it from db (pending)
+            return [self.created_by]  # +friends# TODO: read it from db (pending) - I need to get friends :(
 
     def __init__(self, event_id, created_by, event_name, event_description, event_date_start, event_date_end,
                  event_location, privacy, recurrence, next_event_date):
@@ -105,19 +123,18 @@ class DBEvent(Base):
         self.next_event_date = next_event_date
 
     @staticmethod
-    def create(event: str):
-        event = json.loads(event)
+    def create(event: EventRequest):
         return DBEvent(
-            None,
-            event['created_by'],
-            event['event_name'],
-            event['event_description'],
-            event['event_date_start'],
-            event['event_date_end'],
-            event['event_location'],
-            event['privacy'],
-            event['recurrence'],
-            event['next_event_date']
+            event_id=None,
+            created_by=event.created_by,
+            event_name=event.event_name,
+            event_description=event.event_description,
+            event_date_start=event.event_date_start,
+            event_date_end=event.event_date_end,
+            event_location=event.event_location,
+            privacy=event.privacy,
+            recurrence=event.recurrence,
+            next_event_date=event.next_event_date
         )
 
     def copy(self):

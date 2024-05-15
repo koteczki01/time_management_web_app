@@ -1,5 +1,4 @@
 import datetime
-import json
 from typing import Type
 import models
 from sqlalchemy.orm import Session
@@ -53,8 +52,9 @@ async def get_all_events_by_user_id_ongoing_in_specified_time(user_id: int, star
                                                               end: datetime.datetime, db: Session):
     events = []
     for event in await get_all_events_of_user_by_user_id(user_id=user_id, db=db):
-        while event is not None and event.event_date_start <= end and event.event_date_end >= start:
-            events += [event]
+        while event is not None and event.event_date_start <= end:
+            if event.event_date_end >= start:
+                events += [event]
             event = event.next_event()
     return events
 
@@ -68,78 +68,48 @@ async def create_required_event_participants(db_event, db):
                                           response_time=datetime.datetime.now()))  # TODO: zgadnij kiedy odpowie
 
 
-async def create_event_with_required_associations(event: str, db: Session):
+async def create_event_with_required_associations(event: models.EventRequest, db: Session):
     db_event = models.DBEvent.create(event)
     db.add(db_event)
     db.commit()
     await create_required_event_participants(db_event=db_event, db=db)
-    for category_id in json.loads(event)["categories"]:
+    for category_id in event.categories:
         db.add(models.DBEventCategory(event_id=db_event.event_id, category_id=category_id))
     db.commit()
 
 
 async def create_event_participant(event_participants: str, db: Session):
+    # TODO: consider is it useless and potentially remove
     db_event_participants = models.DBEventParticipants.create(event_participants)
     db.add(db_event_participants)
     db.commit()
 
 
-async def create_category(category: str, db: Session):
+async def create_category(category: models.CategoryRequest, db: Session):
     db_category = models.DBCategory.create(category)
     db.add(db_category)
     db.commit()
 
 
-async def create_event_category(category_id: int, event_id: int, db: Session):
-    db.add(models.DBEventCategory(event_id=event_id, category_id=category_id))
-    db.commit()
-
-
-async def update_event(event_id: int, changed_data: str, db: Session):
+async def update_event(event_id: int, changed_data: models.EventRequest, db: Session):
     event = db.get(models.DBEvent, event_id)
-    new_data = json.loads(changed_data)
-    if "event_name" in new_data:
-        event.event_name = new_data["event_name"]
-    if "created_by" in new_data:
-        event.created_by = new_data["created_by"]
-    if "event_description" in new_data:
-        event.event_description = new_data["event_description"]
-    if "event_date_start" in new_data:
-        event.event_date_start = new_data["event_date_start"]
-    if "event_date_end" in new_data:
-        event.event_date_end = new_data["event_date_end"]
-    if "event_location" in new_data:
-        event.event_location = new_data["event_location"]
-    if "privacy" in new_data:
-        previous_privacy = event.privacy
-        event.privacy = new_data["privacy"]
-        if not previous_privacy == event.privacy:
-            for participant in await get_all_event_participants(event_id=event.event_id, db=db):
-                db.delete(participant)
-            await create_required_event_participants(db_event=event, db=db)
-    if "recurrence" in new_data:
-        event.recurrence = new_data["recurrence"]
-    if "next_event_date" in new_data:
-        event.next_event_date = new_data["next_event_date"]
-    if "categories" in new_data:
-        for category in new_data["categories"]:
-            db.add(models.DBEventCategory(event_id=event.event_id, category_id=category))
-            # TODO: consider how to implement this case (remove add update)
+    new_data = changed_data.dict(exclude_unset=True)
+    for field, value in new_data.items():
+        setattr(event, field, value)
     db.commit()
 
 
-async def update_category(category_id: int, changed_data: str, db: Session):
+async def update_category(category_id: int, changed_data: models.CategoryRequest, db: Session):
     category = db.get(models.DBCategory, category_id)
-    new_data = json.loads(changed_data)
-    if "category_name" in new_data:
-        category.category_name = new_data["category_name"]
-    if "category_description" in new_data:
-        category.category_description = new_data["category_description"]
+    new_data = changed_data.dict(exclude_unset=True)
+    for field, value in new_data.items():
+        setattr(category, field, value)
     db.commit()
 
 
 async def delete_event(event_id: int, db: Session):
     event = db.get(models.DBEvent, event_id)
+    # TODO: delete all associations
     db.delete(event)
     db.commit()
 
