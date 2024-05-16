@@ -4,3 +4,4 @@ config-docker.ini
 __pycache__/
 ../.DS_Store
 ../.idea/
+/rest_api_service/.env

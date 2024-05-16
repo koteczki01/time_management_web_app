@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from typing import Type
 import models
 from sqlalchemy.orm import Session
@@ -50,16 +50,16 @@ async def get_user_by_username(db: Session, username: str) -> Type[models.DBUser
         return None
 
 
-async def create_user(db: Session, username: str, email: str, password_hash: str, birthday: datetime.datetime) -> models.DBUser | None:
+async def create_user(db: Session, username: str, email: str, password_hash: str, birthday: datetime) -> models.DBUser | None:
     try:
         user = models.DBUser(
             username=username,
             email=email,
             password_hash=password_hash,
             birthday=birthday,
-            created_at=datetime.datetime.now(),
-            last_login=datetime.datetime.now(),
-            update_date=datetime.datetime.now(),
+            created_at=datetime.now(),
+            last_login=datetime.now(),
+            update_date=datetime.now(),
             is_active=True
         )
         db.add(user)
@@ -75,7 +75,7 @@ async def update_user_last_login(db: Session, id : int) -> None:
     try:
         user = await get_user_by_id(db, id)
         if user:
-            user.last_login = datetime.datetime.now()
+            user.last_login = datetime.now()
             db.commit()
             db.refresh(user)
     except Exception:
