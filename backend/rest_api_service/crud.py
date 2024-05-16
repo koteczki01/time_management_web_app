@@ -93,3 +93,5 @@ async def get_friend_request(db: Session, sender_id: int) -> DBUserFriendship:
         (DBUserFriendship.user1_id == sender_id) | (DBUserFriendship.user2_id == sender_id)
     ).filter_by(friendship_status=FriendshipStatus.pending).first()
     return friendship
+
+
