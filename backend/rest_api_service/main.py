@@ -75,7 +75,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     return user
 
-@app.post("/token", response_model=Token)
+@app.post("/token", tags=['Jwt'] , response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = await crud.get_user_by_username(db, form_data.username.lower())
     if not user or not verify_password(form_data.password, user.password_hash):
@@ -92,7 +92,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.get("/users/me/", response_model=UserSchema)
+@app.get("/users/me/", tags=['Jwt'], response_model=UserSchema)
 async def read_users_me(current_user: UserSchema = Depends(get_current_user)):
     return current_user
 
