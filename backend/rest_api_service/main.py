@@ -75,6 +75,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     return user
 
+
 @app.post("/token", tags=['Jwt'] , response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = await crud.get_user_by_username(db, form_data.username.lower())
@@ -117,7 +118,7 @@ async def login(login_schema: UserLoginSchema, response: Response, db: Session =
 
 
 @app.post("/register", tags=['User'], status_code=status.HTTP_201_CREATED, response_model=UserRegisterResponse|ErrorOccured)
-async def register(user : UserRegisterSchema, response: Response, db: Session = Depends(get_db)):
+async def register(user: UserRegisterSchema, response: Response, db: Session = Depends(get_db)):
     try:
         existing_user = await crud.get_user_by_username(db, user.username.lower())
         
