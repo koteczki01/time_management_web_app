@@ -2,7 +2,7 @@ from typing import Type
 import models
 from sqlalchemy.orm import Session, joinedload
 from models import DBUser, DBUserFriendship
-from datetime import date
+from datetime import date, datetime
 
 
 async def get_all_users(db: Session) -> list[Type[DBUser]] | None:
@@ -15,26 +15,25 @@ async def get_all_users(db: Session) -> list[Type[DBUser]] | None:
  
 async def get_user_by_id(db: Session, user_id: int) -> models.DBUser | None:
     user = db.query(models.DBUser).filter(models.DBUser.user_id == user_id).first()
-    print(user)
-    
     return user
 
 async def get_user_by_username(db: Session, username: str) -> models.DBUser | None:
     user = db.query(models.DBUser).filter(models.DBUser.username == username).first()
-    print(user)
-    
     return user
 
 async def get_all_events_by_user_id(db: Session, user_id: int) -> models.DBUser | None:
-    user = db.query(models.DBUser).options(joinedload(models.DBUser.events_created)).filter(models.DBUser.user_id == user_id).first()
+    user = db.query(models.DBEvent).filter(models.DBEvent.created_by == user_id).first()
     return user
 
-
 async def get_all_friends_by_user_id(db: Session, user_id: int) -> models.DBUser | None:
-    user = db.query(models.DBUser).filter(models.DBUser.user_id == user_id).first()
+    user = db.query(models.DBUser).filter(models.DBUserFriendship.user1_id == user_id).first()
     if user:
-        return user.friends
+        return user
     return None
+
+async def get_all_active_users(db: Session) -> models.DBUser | None:
+    user = db.query(models.DBUser).filter(models.DBUser.is_active == True).all()
+    return user
 
 async def create_user(db: Session, username: str, email: str, password_hash: str, birthday: date, is_active: bool = True):
     new_user = DBUser(
@@ -52,18 +51,63 @@ async def create_user(db: Session, username: str, email: str, password_hash: str
     db.refresh(new_user)
     return new_user
 
-async def delete_user(db: Session, user_id: int) -> bool:
-    user = await get_user_by_id(db, user_id)
+
+async def update_user_birthday(db: Session, user_id: int, new_birthday: date):
+    user = db.query(DBUser).filter(DBUser.user_id == user_id).first()
     if user:
-        # Usuń rekordy z tabeli DBUserFriendship powiązane z użytkownikiem
-        db.query(DBUserFriendship).filter(
-            (DBUserFriendship.user1_id == user_id) | (DBUserFriendship.user2_id == user_id)
-        ).delete(synchronize_session=False)
-        # Usuń użytkownika
-        db.delete(user)
+        user.birthday = new_birthday
+        user.update_date = date.today()
         db.commit()
-        return True
-    return False
+        db.refresh(user)
+        return user
+    else:
+        return None
+
+async def change_user_password(db: Session, user_id: int, new_password_hash: str):
+    user = db.query(DBUser).filter(DBUser.user_id == user_id).first()
+    if user:
+        user.password_hash = new_password_hash
+        user.update_date = date.today()
+        db.commit()
+        db.refresh(user)
+        return user
+    else:
+        return None
+    
+async def change_user_email(db: Session, user_id: int, new_email: str):
+    user = db.query(DBUser).filter(DBUser.user_id == user_id).first()
+    if user:
+        user.email = new_email
+        user.update_date = date.today()
+        db.commit()
+        db.refresh(user)
+        return user
+    else:
+        return None
+    
+async def change_user_username(db: Session, user_id: int, new_username: str):
+    user = db.query(DBUser).filter(DBUser.user_id == user_id).first()
+    if user:
+        user.username = new_username
+        user.update_date = date.today()
+        db.commit()
+        db.refresh(user)
+        return user
+    else:
+        return None
+       
+
+async def update_user_last_login(db: Session, user_id: int):
+    user = db.query(DBUser).filter(DBUser.user_id == user_id).first()
+    if user:
+        now = datetime.now().replace(microsecond=0)
+        user.last_login = now
+        user.update_date = now
+        db.commit()
+        db.refresh(user)
+        return user
+    else:
+        return None
 
 
 async def get_all_categories(db: Session) -> list[Type[models.DBCategory]] | None:
