@@ -74,7 +74,7 @@ async def send_friend_request(recipient_id: int, db: Session = Depends(get_db)):
     try:
         
         friendship = crud.create_friend_request(db, sender_id, recipient_id)
-        return {"message": "Pomyœlnie zaproszono u¿ytkownika do grona znajomych"}
+        return {"message": "Friend request sent successfully"}
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
 
@@ -85,8 +85,8 @@ async def accept_friend_request(sender_id: int, db: Session = Depends(get_db)):
         
         friendship = crud.get_friend_request(db, sender_id) 
         if friendship:
-            if friendship.friendship_status == friendship_status.pending:
-                friendship.friendship_status = friendship_status.accepted
+            if friendship.friendship_status == models.DBUsersFriendship.friendship_status.pending:
+                friendship.friendship_status = models.DBUsersFriendship.friendship_status.accepted
                 db.commit()
                 return {"message": "Friend request accepted successfully"}
             else:
@@ -95,4 +95,5 @@ async def accept_friend_request(sender_id: int, db: Session = Depends(get_db)):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Friend request not found")
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+
 
