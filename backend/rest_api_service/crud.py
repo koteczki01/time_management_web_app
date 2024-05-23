@@ -1,6 +1,6 @@
 from typing import Type
 import models
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, aliased
 from models import DBUser, DBUserFriendship
 from datetime import date, datetime
 
@@ -25,11 +25,29 @@ async def get_all_events_by_user_id(db: Session, user_id: int) -> models.DBUser 
     user = db.query(models.DBEvent).filter(models.DBEvent.created_by == user_id).first()
     return user
 
-async def get_all_friends_by_user_id(db: Session, user_id: int) -> models.DBUser | None:
-    user = db.query(models.DBUser).filter(models.DBUserFriendship.user1_id == user_id).first()
-    if user:
-        return user
-    return None
+async def get_all_friends_of_user_by_user_id(db: Session, user_id: int):
+
+    user_alias = aliased(DBUser)
+
+    friends1 = db.query(user_alias).join(
+        DBUserFriendship,
+        DBUserFriendship.user1_id == user_id
+    ).filter(
+        DBUserFriendship.user2_id == user_alias.user_id,
+        user_alias.is_active == True
+    )
+
+    friends2 = db.query(user_alias).join(
+        DBUserFriendship,
+        DBUserFriendship.user2_id == user_id
+    ).filter(
+        DBUserFriendship.user1_id == user_alias.user_id,
+        user_alias.is_active == True
+    )
+
+    active_friends = friends1.union(friends2).all()
+
+    return active_friends
 
 async def get_all_active_users(db: Session) -> models.DBUser | None:
     user = db.query(models.DBUser).filter(models.DBUser.is_active == True).all()

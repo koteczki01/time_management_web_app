@@ -78,12 +78,12 @@ async def get_all_active_users( response: Response, db: Session = Depends(get_db
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"message": f"An error occurred: {e}"}
 
-@app.get("/users/get_all_friends_by_user_id/{user_id}", tags=['User'], status_code=status.HTTP_200_OK)
-async def get_all_friends_by_user_id(user_id: int, response: Response, db: Session = Depends(get_db)):
+@app.get("/users/get_all_friends_of_user_by_user_id/{user_id}", tags=['User'], status_code=status.HTTP_200_OK)
+async def get_all_friends_of_user_by_user_id(user_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         user = await crud.get_user_by_id(db, user_id)
         if user:
-            user_friends = await crud.get_all_friends_by_user_id(db, user_id)
+            user_friends = await crud.get_all_friends_of_user_by_user_id(db, user_id)
             if user_friends:
                 return user_friends
             response.status_code = status.HTTP_404_NOT_FOUND
