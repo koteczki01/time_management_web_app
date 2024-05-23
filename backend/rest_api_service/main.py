@@ -7,8 +7,11 @@ from schemas import *
 from schemas import UserLoginSchema, UserRegisterSchema
 import datetime
 import pytz
+import models
+import schemas
 
-utc=pytz.UTC
+
+utc = pytz.UTC
 app = FastAPI()
 
 
@@ -41,7 +44,7 @@ async def login(login_schema: UserLoginSchema, response: Response, db: Session =
 
 
 @app.post("/register", tags=['User'], status_code=status.HTTP_201_CREATED, response_model=UserRegisterResponse|ErrorOccured)
-async def register(user : UserRegisterSchema, response: Response, db: Session = Depends(get_db)):
+async def register(user: UserRegisterSchema, response: Response, db: Session = Depends(get_db)):
     try:
         existing_user = await crud.get_user_by_username(db, user.username.lower())
         
@@ -69,31 +72,66 @@ async def register(user : UserRegisterSchema, response: Response, db: Session = 
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
 
-@app.post("/friend-request/{recipient_id}", tags=['Friend'], status_code=status.HTTP_201_CREATED)
-async def send_friend_request(recipient_id: int, db: Session = Depends(get_db)):
+
+@app.post("/friends/send", tags=['Friends'], status_code=status.HTTP_201_CREATED, response_model=schemas.Friendship|dict)
+async def send_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
     try:
-        
-        friendship = crud.create_friend_request(db, sender_id, recipient_id)
-        return {"message": "Friend request sent successfully"}
+        if sender_id == recipient_id:
+            raise HTTPException(status_code=409, detail='Cannot send request to self')
+
+        frienship = await crud.get_friend_request(db, sender_id, recipient_id)
+
+        if frienship is None:
+            friendship = await crud.create_friend_request(db, sender_id, recipient_id)
+
+            if isinstance(friendship, dict) and friendship.get('error', None) is not None:
+                raise HTTPException(status_code=404, detail=friendship['error'])
+
+            return friendship
+
+        raise HTTPException(status_code=409, detail='Friend request already sent')
+
+    except HTTPException as e:
+        response.status_code = e.status_code
+        return {"message": e.detail}
+
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
 
 
-@app.put("/friend-request/{sender_id}/accept", tags=['Friend'], status_code=status.HTTP_200_OK)
-async def accept_friend_request(sender_id: int, db: Session = Depends(get_db)):
+@app.put("/friends/accept", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=schemas.Friendship|dict)
+async def accept_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
     try:
-        
-        friendship = crud.get_friend_request(db, sender_id) 
-        if friendship:
-            if friendship.friendship_status == models.DBUsersFriendship.friendship_status.pending:
-                friendship.friendship_status = models.DBUsersFriendship.friendship_status.accepted
-                db.commit()
-                return {"message": "Friend request accepted successfully"}
-            else:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Friend request has already been accepted")
-        else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Friend request not found")
+        friendship_res = await crud.alter_friend_request(db, sender_id, recipient_id, "accepted")
+
+        if isinstance(friendship_res, dict) and friendship_res.get('error', None) is not None:
+            raise HTTPException(status_code=409, detail=friendship_res['error'])
+
+        return friendship_res
+
+    except HTTPException as e:
+        response.status_code = e.status_code
+        return {"message": e.detail}
+
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
+        response.status_code = 500
+        return {"message": f"An error occurred: {e}"}
 
 
+@app.put("/friends/reject", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=schemas.Friendship|dict)
+async def reject_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
+    try:
+        friendship_res = await crud.alter_friend_request(db, sender_id, recipient_id, "rejected")
+
+        if isinstance(friendship_res, dict) and friendship_res.get('error', None) is not None:
+            raise HTTPException(status_code=409, detail=friendship_res['error'])
+
+        return friendship_res
+
+    except HTTPException as e:
+        response.status_code = e.status_code
+        return {"message": e.detail}
+
+    except Exception as e:
+        response.status_code = 500
+        return {"message": f"An error occurred: {e}"}

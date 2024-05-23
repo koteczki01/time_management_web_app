@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 # Define your ENUM types
 privacy_level = ENUM('public', 'private', name="privacy_level", create_type=False)
-status = ENUM('pending', 'accepted', name="status", create_type=False)
+status = ENUM('pending', 'accepted', 'rejected', name="status", create_type=False)
 recurrence_rule = ENUM('daily', 'weekly', 'monthly', 'yearly', name="recurrence_rule", create_type=False)
 event_role = ENUM('host', 'member', name="event_role", create_type=False)
 
@@ -85,6 +85,8 @@ class DBUserFriendship(Base):
     user1_id = Column(Integer, ForeignKey('db_user.user_id'), nullable=False)
     user2_id = Column(Integer, ForeignKey('db_user.user_id'), nullable=False)
     friendship_status = Column(status, nullable=False)
+    sent_at = Column(TIMESTAMP, nullable=False, default=datetime.now())
+    action_time = Column(TIMESTAMP, nullable=True)
 
 
 class DBEventParticipants(Base):
