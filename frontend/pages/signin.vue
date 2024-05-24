@@ -1,20 +1,44 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import axios from 'axios';
+
 definePageMeta({
   layout: 'user',
-})
+});
+
+const username = ref('');
+const password = ref('');
+
+const login = async () => {
+  try {
+    const response = await axios.post('http://172.178.92.68:8000/login', {
+      username: username.value,
+      password: password.value,
+    });
+    console.log(response.data);
+    alert('Login successful');
+  } catch (error) {
+    console.error(error);
+    if (error.response && error.response.status === 401) {
+      alert('Incorrect username or password');
+    } else {
+      alert('An error occurred. Please try again later.');
+    }
+  }
+};
 </script>
 
 <template>
   <h1>Log in</h1>
-  <form class="auth-form">
+  <form class="auth-form" @submit.prevent="login">
     <div class="form-group">
       <label for="user">User:</label>
-      <input id="user" type="text" required>
+      <input id="user" type="text" v-model="username" required />
     </div>
 
     <div class="form-group">
       <label for="password">Password:</label>
-      <input id="password" type="password" required>
+      <input id="password" type="password" v-model="password" required />
     </div>
 
     <div class="links">
@@ -84,7 +108,7 @@ h1 {
   color: #fff;
   font-size: 3rem;
   -webkit-text-stroke: 1px rgb(85, 68, 76);
-  text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
+  text-shadow: 2px 2px 2px rgba(85, 68, 76, 0.6);
 }
 
 label {
