@@ -1,19 +1,10 @@
-import datetime
+from datetime import datetime
 from typing import Type
 import models
-
-from sqlalchemy.orm import Session, aliased, NoResultFound
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm.exc import NoResultFound
 from models import DBUser, DBUserFriendship
 from datetime import date, datetime
-
-
-
-async def get_all_users(db: Session) -> list[Type[DBUser]] | None:
-    users = db.query(models.DBUser).all()
-
-    return users
-
-
 
  
 async def get_user_by_id(db: Session, user_id: int) -> models.DBUser | None:
@@ -170,16 +161,16 @@ async def get_user_by_username(db: Session, username: str) -> Type[models.DBUser
 
 
 async def create_user(db: Session, username: str, email: str, password_hash: str,
-                      birthday: datetime.datetime) -> models.DBUser | None:
+                      birthday: datetime) -> models.DBUser | None:
     try:
         user = models.DBUser(
             username=username,
             email=email,
             password_hash=password_hash,
             birthday=birthday,
-            created_at=datetime.datetime.now(),
-            last_login=datetime.datetime.now(),
-            update_date=datetime.datetime.now(),
+            created_at=datetime.now(),
+            last_login=datetime.now(),
+            update_date=datetime.now(),
             is_active=True
         )
         db.add(user)
@@ -195,7 +186,7 @@ async def update_user_last_login(db: Session, id: int) -> None:
     try:
         user = await get_user_by_id(db, id)
         if user:
-            user.last_login = datetime.datetime.now()
+            user.last_login = datetime.now()
             db.commit()
             db.refresh(user)
     except Exception:
@@ -222,8 +213,8 @@ async def get_all_event_participants(event_id: int, db: Session):
         models.DBEventParticipants.event_id == event_id).all()
 
 
-async def get_all_events_by_user_id_ongoing_in_specified_time(user_id: int, start: datetime.datetime,
-                                                              end: datetime.datetime, db: Session):
+async def get_all_events_by_user_id_ongoing_in_specified_time(user_id: int, start: datetime,
+                                                              end: datetime, db: Session):
     events = []
     for event in await get_all_events_of_user_by_user_id(user_id=user_id, db=db):
         while event is not None and event.event_date_start <= end:
@@ -239,7 +230,7 @@ async def create_required_event_participants(db_event, db):
                                           participant_status="accepted" if participant == db_event.created_by
                                           else "pending",
                                           participant_role="host" if participant == db_event.created_by else "member",
-                                          response_time=datetime.datetime.now()))  # TODO: zgadnij kiedy odpowie
+                                          response_time=datetime.now()))  # TODO: zgadnij kiedy odpowie
 
 
 async def create_event_categories(event_id: int, event: models.EventRequest, db: Session):
@@ -311,10 +302,11 @@ async def accept_or_reject_participate_in_event(user_id: int, event_id: int, is_
         models.DBEventParticipants.event_id == event_id and models.DBEventParticipants.user_id == user_id).first()
     if is_accepted:
         db_event_participant.participant_status = "accepted"
-        db_event_participant.response_time = datetime.datetime.now()
+        db_event_participant.response_time = datetime.now()
     else:
         db.delete(db_event_participant)
     db.commit()
+
 
 
 async def delete_all_event_participants(event_id: int, db: Session):
