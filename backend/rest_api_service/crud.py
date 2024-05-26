@@ -1,10 +1,14 @@
-from datetime import datetime
 from typing import Type
+
 import models
-from sqlalchemy.orm import Session, aliased
-from sqlalchemy.orm.exc import NoResultFound
 from models import DBUser, DBUserFriendship
 from datetime import date, datetime
+
+
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import and_
 
  
 async def get_user_by_id(db: Session, user_id: int) -> models.DBUser | None:
@@ -330,3 +334,49 @@ async def delete_category(category_id: int, db: Session):
     category = db.get(models.DBCategory, category_id)
     db.delete(category)
     db.commit()
+
+
+async def create_friend_request(db: Session, sender_id: int, recipient_id: int, friendship_status="pending") -> models.DBUserFriendship | dict:
+    try:
+        friendship = models.DBUserFriendship(user1_id=sender_id, user2_id=recipient_id, friendship_status=friendship_status)
+
+        db.add(friendship)
+        db.commit()
+
+        return friendship
+    except IntegrityError as e:
+        return {'error': repr(e)}
+
+
+async def get_friend_request(db: Session, sender_id: int, recipient_id: int) -> models.DBUserFriendship | None:
+    friendship = db.query(models.DBUserFriendship).filter(and_(models.DBUserFriendship.user1_id == sender_id, models.DBUserFriendship.user2_id == recipient_id)).first()
+
+    return friendship
+
+
+async def alter_friend_request(db: Session, sender_id: int, recipient_id: int, action: str) -> models.DBUserFriendship | dict:
+    friendship = await get_friend_request(db, sender_id=sender_id, recipient_id=recipient_id)
+
+    if friendship:
+        if friendship.friendship_status in ['accepted', 'rejected']:
+            return {"error": f"Friendship already {friendship.friendship_status}"}
+
+        friendship.friendship_status = action
+        friendship.action_time = datetime.now()
+
+        db.commit()
+        db.refresh(friendship)
+
+        reversed_friendship = await get_friend_request(db, sender_id=recipient_id, recipient_id=sender_id)
+        if reversed_friendship is None:
+            # create entry for recipient -> sender
+            await create_friend_request(db, sender_id=recipient_id, recipient_id=sender_id, friendship_status=action)
+        else:
+            reversed_friendship.friendship_status = action
+            reversed_friendship.action_time = datetime.now()
+
+            db.commit()
+            db.refresh(reversed_friendship)
+
+        return friendship
+    return {"error": "Friend request not found"}

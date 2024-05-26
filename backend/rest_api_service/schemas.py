@@ -25,15 +25,23 @@ class UserLoginResponse(BaseModel):
 
 
 class UserLoginSchema(BaseModel):
-    username : str
-    password_hash : str
+    username: str
+    password_hash: str
 
 
 class UserRegisterSchema(BaseModel):
-    username : str
-    password : str
-    email : EmailStr
-    birthday : datetime
+    username: str
+    password: str
+    email: EmailStr
+    birthday: datetime
+
 
 class ErrorOccured(BaseModel):
     message: str
+
+
+class Friendship(BaseModel):
+    friendship_id: int
+    user1_id: int
+    user2_id: int
+    friendship_status: str
