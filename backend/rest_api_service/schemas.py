@@ -1,26 +1,26 @@
-import datetime
+from datetime import datetime
 from pydantic import EmailStr, BaseModel
 
 
 class UserRegisterResponse(BaseModel):
     user_id: int
-    birthday: datetime.datetime
-    last_login: datetime.datetime
+    birthday: datetime
+    last_login: datetime
     username: str
     email: EmailStr
-    created_at: datetime.datetime
-    update_date: datetime.datetime
+    created_at: datetime
+    update_date: datetime
     is_active: bool
 
 
 class UserLoginResponse(BaseModel):
     user_id: int
-    birthday: datetime.datetime
-    last_login: datetime.datetime
+    birthday: datetime
+    last_login: datetime
     username: str
     email: EmailStr
-    created_at: datetime.datetime
-    update_date: datetime.datetime
+    created_at: datetime
+    update_date: datetime
     is_active: bool
 
 
@@ -33,7 +33,7 @@ class UserRegisterSchema(BaseModel):
     username: str
     password: str
     email: EmailStr
-    birthday: datetime.datetime
+    birthday: datetime
 
 
 class ErrorOccured(BaseModel):
