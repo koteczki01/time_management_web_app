@@ -3,7 +3,7 @@
 
 -- CREATE TYPES
 CREATE TYPE privacy_level AS ENUM ('public', 'private');
-CREATE TYPE status AS ENUM ('pending', 'accepted');
+CREATE TYPE status AS ENUM ('pending', 'accepted', 'rejected');
 CREATE TYPE recurrence_rule AS ENUM ('daily', 'weekly', 'monthly', 'yearly');
 CREATE TYPE event_role AS ENUM ('host', 'member');
 
@@ -62,6 +62,8 @@ CREATE TABLE db_user_friendship(
     user1_id int NOT NULL,
     user2_id int NOT NULL,
     friendship_status status NOT NULL,
+    sent_at timestamp NOT NULL,
+    action_time timestamp NULL,
 
     CONSTRAINT fk_user1_id FOREIGN KEY(user1_id) REFERENCES db_user(user_id),
     CONSTRAINT fk_user2_id FOREIGN KEY(user2_id) REFERENCES db_user(user_id)
@@ -143,20 +145,21 @@ INSERT INTO db_event_category (event_id, category_id) VALUES
 (10, 5); -- Tech Meetup is a Technology event
 
 
-INSERT INTO db_user_friendship (user1_id, user2_id, friendship_status) VALUES
-(1, 2, 'accepted'),
-(1, 3, 'accepted'),
-(1, 4, 'pending'),
-(2, 3, 'accepted'),
-(2, 5, 'accepted'),
-(3, 6, 'accepted'),
-(4, 7, 'pending'),
-(5, 8, 'accepted'),
-(6, 9, 'accepted'),
-(7, 10, 'accepted'),
-(8, 10, 'pending'),
-(9, 2, 'accepted'),
-(10, 1, 'accepted');
+INSERT INTO db_user_friendship (user1_id, user2_id, friendship_status, sent_at, action_time) VALUES
+(1, 2, 'accepted', '2024-01-01 08:00:00', '2024-01-02 09:00:00'),
+(1, 3, 'rejected', '2024-01-03 08:00:00', '2024-01-04 09:00:00'),
+(1, 4, 'pending', '2024-01-05 08:00:00', NULL),
+(2, 3, 'accepted', '2024-01-06 08:00:00', '2024-01-07 09:00:00'),
+(2, 5, 'rejected', '2024-01-08 08:00:00', '2024-01-09 09:00:00'),
+(3, 6, 'accepted', '2024-01-10 08:00:00', '2024-01-11 09:00:00'),
+(4, 7, 'pending', '2024-01-12 08:00:00', NULL),
+(5, 8, 'accepted', '2024-01-13 08:00:00', '2024-01-14 09:00:00'),
+(6, 9, 'accepted', '2024-01-15 08:00:00', '2024-01-16 09:00:00'),
+(7, 10, 'rejected', '2024-01-17 08:00:00', '2024-01-18 09:00:00'),
+(8, 10, 'pending', '2024-01-19 08:00:00', NULL),
+(9, 2, 'accepted', '2024-01-20 08:00:00', '2024-01-21 09:00:00'),
+(10, 1, 'rejected', '2024-01-22 08:00:00', '2024-01-23 09:00:00');
+
 
 
 INSERT INTO db_event_participants (event_id, user_id, participant_status, participant_role, response_time) VALUES
@@ -182,5 +185,3 @@ INSERT INTO db_event_participants (event_id, user_id, participant_status, partic
 (9, 1, 'accepted', 'member', '2024-12-04 10:20:00'),
 (10, 10, 'accepted', 'host', '2024-01-14 18:00:00'),
 (10, 2, 'accepted', 'member', '2024-01-14 18:10:00');
-
-
