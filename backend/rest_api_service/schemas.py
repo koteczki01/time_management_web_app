@@ -45,3 +45,26 @@ class Friendship(BaseModel):
     user1_id: int
     user2_id: int
     friendship_status: str
+
+
+class UserSchema(BaseModel):
+    user_id: int
+    username: str
+    email: EmailStr
+    birthday: datetime
+    created_at: datetime
+    last_login: datetime
+    update_date: datetime
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None

@@ -1,17 +1,31 @@
 import bcrypt
-from fastapi import FastAPI, HTTPException, status, Depends, Response
 import crud
 from database import SessionLocal
 from sqlalchemy.orm import Session
-from datetime import date
 from schemas import *
-from datetime import datetime
 import pytz
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+import jwt
+from datetime import datetime, timedelta, UTC, date
+from dotenv import load_dotenv
+import os
+from models import *
+from fastapi import FastAPI, HTTPException, status, Depends, Response
 
-import models
 
-utc = pytz.UTC
+# Load environment variables from .env file
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 app = FastAPI()
+utc = pytz.UTC
 
 
 # Dependency
@@ -22,6 +36,65 @@ def get_db():
     finally:
         db.close()
 
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(UTC) + expires_delta
+    else:
+        expire = datetime.now(UTC) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except jwt.PyJWTError:
+        raise credentials_exception
+    user = await crud.get_user_by_username(db, username=token_data.username)
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+@app.post("/token", tags=['Jwt'] , response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = await crud.get_user_by_username(db, form_data.username.lower())
+    if not user or not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.get("/users/me/", tags=['Jwt'], response_model=UserSchema)
+async def read_users_me(current_user: UserSchema = Depends(get_current_user)):
+    return current_user
 
 @app.post("/login", tags=['User'], status_code=status.HTTP_200_OK, response_model=UserLoginResponse | ErrorOccured)
 async def login(login_schema: UserLoginSchema, response: Response, db: Session = Depends(get_db)):
@@ -244,7 +317,7 @@ async def get_all_events_by_user_id_ongoing_in_specified_time(user_id: int, star
 
 
 @app.post("/event/create", tags=['Event'], status_code=status.HTTP_201_CREATED)
-async def create_event_with_required_associations(event: models.EventRequest, response: Response,
+async def create_event_with_required_associations(event: EventRequest, response: Response,
                                                   db: Session = Depends(get_db)):
     try:
         await crud.create_event_with_required_associations(event=event, db=db)
@@ -254,7 +327,7 @@ async def create_event_with_required_associations(event: models.EventRequest, re
 
 
 @app.post("/category/create", tags=['Category'], status_code=status.HTTP_201_CREATED)
-async def create_category(category: models.CategoryRequest, response: Response, db: Session = Depends(get_db)):
+async def create_category(category: CategoryRequest, response: Response, db: Session = Depends(get_db)):
     try:
         await crud.create_category(category=category, db=db)
     except Exception as e:
@@ -263,7 +336,7 @@ async def create_category(category: models.CategoryRequest, response: Response, 
 
 
 @app.put("/event/update", tags=['Event'], status_code=status.HTTP_200_OK)
-async def update_event(event_id: int, changed_data: models.EventRequest, response: Response,
+async def update_event(event_id: int, changed_data: EventRequest, response: Response,
                        db: Session = Depends(get_db)):
     try:
         await crud.update_event(event_id=event_id, changed_data=changed_data, db=db)
@@ -273,7 +346,7 @@ async def update_event(event_id: int, changed_data: models.EventRequest, respons
 
 
 @app.put("/category/update", tags=['Category'], status_code=status.HTTP_200_OK)
-async def update_category(category_id: int, changed_data: models.CategoryRequest, response: Response,
+async def update_category(category_id: int, changed_data: CategoryRequest, response: Response,
                           db: Session = Depends(get_db)):
     try:
         await crud.update_category(category_id=category_id, changed_data=changed_data, db=db)
@@ -313,7 +386,7 @@ async def delete_category(category_id: int, response: Response, db: Session = De
         return {"message": f"An error occurred: {e}"}
 
 
-@app.put("/friends/reject", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=schemas.Friendship|dict)
+@app.put("/friends/reject", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=Friendship|dict)
 async def reject_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         friendship_res = await crud.alter_friend_request(db, sender_id, recipient_id, "rejected")
@@ -327,7 +400,7 @@ async def reject_friend_request(sender_id: int, recipient_id: int, response: Res
         response.status_code = e.status_code
         return {"message": e.detail}
 
-@app.post("/friends/send", tags=['Friends'], status_code=status.HTTP_201_CREATED, response_model=schemas.Friendship|dict)
+@app.post("/friends/send", tags=['Friends'], status_code=status.HTTP_201_CREATED, response_model=Friendship|dict)
 async def send_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         if sender_id == recipient_id:
@@ -353,7 +426,7 @@ async def send_friend_request(sender_id: int, recipient_id: int, response: Respo
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An error occurred: {e}")
 
 
-@app.put("/friends/accept", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=schemas.Friendship|dict)
+@app.put("/friends/accept", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=Friendship|dict)
 async def accept_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         friendship_res = await crud.alter_friend_request(db, sender_id, recipient_id, "accepted")
