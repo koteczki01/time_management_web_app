@@ -6,6 +6,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ENUM
 from datetime import datetime, timezone, timedelta
 
+
+
 # Define your ENUM types
 privacy_level = ENUM('public', 'private', name="privacy_level", create_type=False)
 status = ENUM('pending', 'accepted', 'rejected', name="status", create_type=False)
@@ -224,3 +226,15 @@ class DBEventParticipants(Base):
             participant_role=participant['participant_role'],
             response_time=participant['response_time']
         )
+
+
+
+class Friendship(Base):
+    __tablename__ = 'friendships'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    sender_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    recipient_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+
+    sender = relationship("User", foreign_keys=[sender_id])
+    recipient = relationship("User", foreign_keys=[recipient_id])
