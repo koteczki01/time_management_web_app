@@ -2,55 +2,76 @@
 definePageMeta({
   layout: 'user',
 })
+import axios from 'axios';
+import { ref } from 'vue';
+
+const username = ref('');
+const email = ref('');
+const password = ref('');
+const repeatPassword = ref('');
+const birthday = ref('');
+const agreeTerms = ref(false);
+
+const registerUser = async () => {
+  try {
+    const response = await axios.post('http://172.178.92.68/register', {
+      username: username.value,
+      password: password.value,
+      email: email.value,
+      birthday: birthday.value,
+    });
+    if (response.status === 201) {
+      alert('Rejestracja zakończona pomyślnie!');
+    } else {
+      console.error('Błąd rejestracji:', response.data.message);
+    }
+  } catch (error) {
+    console.error('Wystąpił błąd podczas rejestracji:', error);
+  }
+};
 </script>
 
 <template>
   <section>
     <h1>Create an Account</h1>
-    <form class="auth-form">
+    <form class="auth-form" @submit.prevent="registerUser">
       <div class="form-group">
         <label for="username">Username:</label>
-        <input id="username" type="text" required>
+        <input id="username" type="text" v-model="username" required>
       </div>
 
       <div class="form-group">
         <label for="email">E-Mail:</label>
-        <input id="email" type="text" required>
+        <input id="email" type="text" v-model="email" required>
       </div>
 
       <div class="group">
+        <div class="form-group-one">
+          <label for="password">Password:</label>
+          <input id="password" type="password" v-model="password" required>
+        </div>
 
-     
-      <div class="form-group-one">
-        <label for="password">Password:</label>
-        <input id="password" type="password" required="true">
+        <div class="form-group-one">
+          <label for="repeat-password">Repeat Password:</label>
+          <input id="repeat-password" type="password" v-model="repeatPassword" required>
+        </div>
       </div>
-
-      <div class="form-group-one">
-        <label for="repeat-password">Repeat Password:</label>
-        <input id="repeat-password" type="password" required>
-      </div>
-       </div>
 
       <div class="group">
-      <div class="form-group-one">
-        <label for="dob">Date of Birth:</label>
-        <input id="dob" type="date">
-      </div>
+        <div class="form-group-one">
+          <label for="dob">Date of Birth:</label>
+          <input id="dob" type="date" v-model="birthday">
+        </div>
 
-      <div class="checkbox-container">
-        <input id="agree-terms" type="checkbox">
-        <label for="agree-terms">I read and agree with the terms and conditions</label>
+        <div class="checkbox-container">
+          <input id="agree-terms" type="checkbox" v-model="agreeTerms">
+          <label for="agree-terms">I read and agree with the terms and conditions</label>
+        </div>
       </div>
-    </div>
 
       <div class="button-container">
-        <button type="submit">
-          Go Back
-        </button>
-        <button type="submit">
-          Register
-        </button>
+        <button type="button" @click="goBack">Go Back</button>
+        <button type="submit">Register</button>
       </div>
     </form>
   </section>

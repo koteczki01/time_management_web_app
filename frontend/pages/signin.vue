@@ -27,6 +27,7 @@ const login = async () => {
   }
 };
 </script>
+
 <template>
   <h1>Log in</h1>
   <form class="auth-form" @submit.prevent="login">
