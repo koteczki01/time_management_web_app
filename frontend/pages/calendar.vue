@@ -9,44 +9,102 @@
       <h1>Add</h1>
     </div>
   </div>
-  <div class="calendar-bar">
-    <div class="friends">
-      <h1>Friends</h1>
-    </div>
-    <div>
-    <h1>Monday</h1>
-    </div>
-    <div>
-    <h1>Tuesday</h1>
-    </div>
-    <div>
-    <h1>Wednesday</h1>
-    </div>
-    <div>
-    <h1>Thursday</h1>
-    </div>
-    <div>
-    <h1>Friday</h1>
-    </div>
-    <div>
-    <h1>Saturday</h1>
-    </div>
-    <div>
-    <h1>Sunday</h1>
-    </div>
-  </div>
-  <div class="friends_names">
-    <div class="name" v-for="friend in numberOfFriends" :key="friend">
-      Natalia
-    </div>
-  </div>
+  <table>
+    <tr>
+      <td id="friends">Friends</td>
+      <td id="calendar-bar">Monday</td>
+      <td id="calendar-bar">Tuesday</td>
+      <td id="calendar-bar">Wednesday</td>
+      <td id="calendar-bar">Thursday</td>
+      <td id="calendar-bar">Friday</td>
+      <td id="calendar-bar">Saturday</td>
+      <td id="calendar-bar">Sunday</td>
+    </tr>
+  </table>
 
+  <table id="main-table" v-for="row in numberOfRows">
+    <tr class="color">
+      <td rowspan="5" class="box" >
+         <h1 id="name">
+          <h1> </h1>
+          Natalia</h1>
+      </td>
+      <td ><div id="work"> Work </div></td> <td><div id="work"> Work </div></td><td><div id="work"> Work </div></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr>
+      <td></td> <td></td><td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="color">
+      <td></td> <td></td><td><div id="work"> Work </div></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr>
+      <td></td> <td></td><td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr class="color">
+      <td></td> <td></td><td></td><td></td><td><div id="work"> Work </div></td><td></td><td></td>
+    </tr>
+    <tr id="gap">
+      <td id="diff_color"></td>
+      <td colspan="7"></td>
+    </tr>
+
+  </table> 
 </template>
 
 <style>
 body{
   margin: 0;
 }
+table, th, td,tr {
+  border-right: 2px solid #CCB2C6;
+  border-bottom: 2px solid #CCB2C6;
+  text-align: center;
+  -webkit-text-stroke: 1px rgb(85, 68, 76);
+  text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
+  font-family: 'Lao Muang Don', sans-serif;
+  color: #fff;
+  font-size: 1.7rem;
+}
+
+#work{
+  background-color:#1569df39;
+  border-radius:40px ;
+}
+
+table {
+  border-collapse: collapse;
+  width:100%;
+}
+td {
+  height: 40px;
+  width:12.5%;
+}
+
+.main-content {
+  display: flex;
+}
+.box{
+  background-color: #cfb2d4;
+}
+#main-table{
+  border-collapse: collapse;
+}
+#diff_color{
+  background-color: #FFE8E8;
+}
+.main-calendar{
+  display:inline-grid;
+  width:100%;
+  grid-template-columns: repeat(8, 100px);
+  grid-template-rows: repeat(auto-fill, 100px);
+  /* border-right: 2px solid #CCB2C6; */
+}
+.color{
+  background-color: #cfb2d439;
+}
+.gap{
+  font-size: 65px;
+} 
 .top-bar {
   width: 100%;
   height: 13vh;
@@ -104,65 +162,34 @@ body{
   align-items: center;
   justify-content: center;
 }
-.calendar-bar{
-  display: flex;
-  align-items: flex-start;
-}
-.calendar-bar div:not(.friends) {
-  border-right: 2px solid #CCB2C6;
-  border-bottom: none;
-  display: flex;
+#calendar-bar {
+  display: table-cell;
   justify-content: center;
-  width: 12.4%;
-}
-.calendar-bar div h1{
-  -webkit-text-stroke: 1px rgb(85, 68, 76);
-  text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
-  font-family: 'Lao Muang Don', sans-serif;
-  color: #fff;
-  font-size: 1.7rem;
-}
-.friends{
-  background-color: #FFE8E8;
-  width:12.5%;
-  border-right: 2px solid #CCB2C6;
-  border-bottom: none;
-  display: flex;
-  justify-content: center;
-}
-.friends_names {
-  border-right: 2px solid #CCB2C6;
   width: 12.5%;
-  color: white;
-  -webkit-text-stroke: 1px rgb(85, 68, 76);
-  text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
-  font-family: 'Lao Muang Don', sans-serif;
-  background-color: #FFE8E8;
-  padding: 0;
-  margin: 0;
+  font-size: 35px;
 }
-.name {
-  display: flex;
+#friends{
+  background-color: #FFE8E8;
+  width: 12.5%;
+  display: table-cell;
+  justify-content: center;
+  font-size: 35px;
+} 
+#name {
+  display: table-cell;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  padding-bottom: 5px;
-  margin-bottom: 10px;
-  height: 33.33vh;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-  font-size: 1.6rem;
+  padding-bottom: 0;
+  margin-left: 0;
+  height: 33vh;
+  font-size:40px;
+  text-align: center;
   background-color: #cfb2d4;
 }
 </style>
 
-<script lang="ts">
-  import { defineComponent } from 'vue';
+<script setup lang="ts">
 
-  export default defineComponent({
-    data() {
-      return {
-        numberOfFriends: 3
-      };
-    }
-  });
+const numberOfFriends = ref(2);
+const numberOfRows = ref(numberOfFriends);
 </script>
