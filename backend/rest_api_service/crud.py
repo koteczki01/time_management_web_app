@@ -229,7 +229,10 @@ async def get_all_events_by_user_id_ongoing_in_specified_time(user_id: int, star
 
 
 async def create_required_event_participants(db_event, db):
-    for participant in db_event.specify_participants:
+    participants = [db_event.created_by]
+    if db_event.privacy == "public":
+        participants.extend(await get_all_friends_of_user_by_user_id(db=db, user_id=db_event.created_by))
+    for participant in participants:
         db.add(models.DBEventParticipants(event_id=db_event.event_id, user_id=participant,
                                           participant_status="accepted" if participant == db_event.created_by
                                           else "pending",
