@@ -101,12 +101,6 @@ class DBEvent(Base):
     categories = relationship("DBCategory", secondary="db_event_category", back_populates="events")
     participants = relationship("DBEventParticipants", back_populates="event")
 
-    @property
-    def specify_participants(self):
-        if self.privacy == "private":
-            return [self.created_by]
-        if self.privacy == "public":
-            return [self.created_by]  # +friends# TODO: read it from db (pending) - I need to get friends :(
 
     def __init__(self, event_id, created_by, event_name, event_description, event_date_start, event_date_end,
                  event_location, privacy, recurrence, next_event_date):
