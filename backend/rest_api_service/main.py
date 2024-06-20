@@ -220,6 +220,17 @@ async def change_user_username(user_id: int, new_username: str, response: Respon
         return {"message": f"An error occurred: {e}"}
 
 
+@app.put("/users/change_password", tags=['User'], status_code=status.HTTP_200_OK)
+async def change_password(user_id: int, password: str, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+    try:
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=8))
+        user = await crud.change_password(db, user_id, hashed_password.decode('utf-8'))
+        return user
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"message": f"An error occurred: {e}"}
+    
+
 @app.post("/register", tags=['User'], status_code=status.HTTP_201_CREATED,
           response_model=UserRegisterResponse | ErrorOccured)
 async def register(user: UserRegisterSchema, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
