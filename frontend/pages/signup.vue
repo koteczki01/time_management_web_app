@@ -14,7 +14,7 @@ const agreeTerms = ref(false);
 
 const registerUser = async () => {
   try {
-    const response = await axios.post('http://172.178.92.68/register', {
+    const response = await axios.post('http://localhost:8000/register', {
       username: username.value,
       password: password.value,
       email: email.value,
