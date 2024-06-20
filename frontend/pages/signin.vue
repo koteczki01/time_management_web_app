@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import axios from 'axios';
+import { stringifyQuery } from 'vue-router';
 
 definePageMeta({
   layout: 'user',
@@ -8,15 +9,18 @@ definePageMeta({
 
 const username = ref('');
 const password = ref('');
+const user_id = useCookie('user_id');
 
 const login = async () => {
   try {
-    const response = await axios.post('http://172.178.92.68:8000/login', {
+    const response = await axios.post('http://localhost:8000/login', {
       username: username.value,
-      password: password.value,
+      password_hash: password.value,
     });
     console.log(response.data);
+    user_id.value = response.data['user_id'];
     alert('Login successful');
+    
   } catch (error) {
     console.error(error);
     if (error.response && error.response.status === 401) {
