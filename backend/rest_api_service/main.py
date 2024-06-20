@@ -140,7 +140,7 @@ async def get_user_by_id(id: int, response: Response, db: Session = Depends(get_
 
 
 @app.get("/users/get_user_by_username", tags=['User'], status_code=status.HTTP_200_OK)
-async def get_user_by_username(username: str, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def get_user_by_username(username: str, response: Response, db: Session = Depends(get_db)):
     try:
         user = await crud.get_user_by_username(db, username)
         return user

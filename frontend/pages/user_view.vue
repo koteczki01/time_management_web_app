@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { stringifyQuery } from 'vue-router';
+import Popup from '../components/friend_request_popup.vue';
 
 definePageMeta({
   layout: 'view',
@@ -12,6 +13,9 @@ const username = ref('');
 const email = ref('');
 const birthday = ref('');
 const friends_string = ref('');
+const isOpen = ref(false);
+let submittedUsername = '';
+const friend_id = ref('');
 
 interface Friend {
   username: string;
@@ -37,14 +41,60 @@ axios({
     limit: 5
   }
 }).then(function (response) {
-  console.log(response.data);
+  //console.log(response.data);
   const friends: Friend[] = response.data;
   friends.forEach((friend) => {
-    console.log(`Username: ${friend.username}`);
+    //console.log(`Username: ${friend.username}`);
     friends_string.value = friends_string.value + friend.username + ` `;
-    console.log(`lista friends: ${friends_string.value}`);
+    //console.log(`lista friends: ${friends_string.value}`);
 });
 });
+
+async function getFriendID(input: string): Promise<string> {
+  try {
+    const response = await axios({
+      method: "get",
+      url:"http://localhost:8000/users/get_user_by_username?username=" + input
+    });
+    friend_id.value = response.data['user_id'];
+    return friend_id.value;
+  } catch (error) {
+      console.error('Error fetching friend ID:', error);
+      throw error
+    }
+}
+
+async function postFriendRequest(input: string) {
+  try {
+    const friend_id_string = await getFriendID(input);
+    console.log(friend_id_string);
+    console.log(user_id.value);
+    const response = await axios({
+      method: "post",
+      url: "http://localhost:8000/friends/send?sender_id=" + user_id.value + "&recipient_id=" + friend_id_string,
+      //data: {
+      //  sender_id: user_id.value,
+      //  recipient_id: friend_id_string
+      //}
+  });
+  console.log('Post response:', response.data);
+  alert("Succesfully added a friend!");
+  } catch (error) {
+    console.error('Error posting friend request:', error);
+    if (error.response.status == 409) {
+      alert("You're already friends!")
+    }
+    else {
+      alert('An unexpected error occurred. Please try again later.');
+    }
+  }
+}
+
+function handleSubmit(value: string) {
+  submittedUsername = value;
+  console.log('Submitted value:', submittedUsername);
+  postFriendRequest(submittedUsername);
+}
 
 </script>
 
@@ -77,13 +127,12 @@ axios({
           {{ birthday }}
         </p>
       </div>
-
+    </form>
       <div>
         <button type="submit" class="change-button">
           Change Password
         </button>
       </div>
-    </form>
   </div>
 
   <div class="friends-card">
@@ -106,13 +155,11 @@ axios({
           Piecharka
         </p>
       </div>
-
-      <div>
-        <button type="submit" class="add-button">
-          Add
-        </button>
-      </div>
     </form>
+      <div>
+        <button @click="isOpen = true" class="add-button">Add</button>
+        <Popup v-if="isOpen" :visible="isOpen" @close="isOpen = false" @submit="handleSubmit"/>
+      </div>
   </div>
 </template>
 
