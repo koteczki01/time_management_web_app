@@ -21,6 +21,8 @@ interface Friend {
   username: string;
 }
 
+const friends_list = ref<string[]>([]);
+
 try {
 axios({
   method: "get",
@@ -52,11 +54,18 @@ axios({
   //console.log(response.data);
   const friends: Friend[] = response.data;
   friends.forEach((friend) => {
-    //console.log(`Username: ${friend.username}`);
+    console.log(`Username: ${friend.username}`);
+    const friend_username = friend.username;
     friends_string.value = friends_string.value + friend.username + ` `;
-    //console.log(`lista friends: ${friends_string.value}`);
+    //friends_list.value.push(friend_username);
+    addFriend(friend.username);
 });
+    console.log(friends_list);
 });
+
+function addFriend(username: string) {
+  friends_list.value.push(username);
+}
 
 async function getFriendID(input: string): Promise<string> {
   try {
