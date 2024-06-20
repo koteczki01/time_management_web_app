@@ -5,7 +5,7 @@
         <div class="input-container">
             <input type="text" v-model="inputValue" />
         </div>
-        <button @click="submit">Send request</button>
+        <button @click="submit">Add friend</button>
         <button @click="closePopup">Close</button>
       </div>
     </div>

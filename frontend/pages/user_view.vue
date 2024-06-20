@@ -21,6 +21,7 @@ interface Friend {
   username: string;
 }
 
+try {
 axios({
   method: "get",
   url: "http://localhost:8000/users/get_user_by_id?id=" + user_id.value,
@@ -33,13 +34,20 @@ axios({
   email.value = response.data['email'];
   birthday.value = response.data['birthday'];
 });
+}
+catch (error) {
+  console.error('Error fetching user ID:', error)
+  if (error.response.status == 422) {
+    alert("Failed to found user. Try logging in again.")
+  }
+  else {
+    alert("An unexpected user error occured. Please try again later.")
+  }
+}
 
 axios({
   method: "get",
   url: "http://localhost:8000/users/get_all_user_friends?user_id=" + user_id.value,
-  params: {
-    limit: 5
-  }
 }).then(function (response) {
   //console.log(response.data);
   const friends: Friend[] = response.data;
@@ -60,6 +68,15 @@ async function getFriendID(input: string): Promise<string> {
     return friend_id.value;
   } catch (error) {
       console.error('Error fetching friend ID:', error);
+      if (axios.isAxiosError(error)) {
+      if (error.response && error.response.status === 422) {
+        alert("User not found!");
+      } else {
+        alert("An unexpected error occurred. Please try again later.");
+      }
+    } else {
+      alert("User not found!");
+    }
       throw error
     }
 }
@@ -67,6 +84,10 @@ async function getFriendID(input: string): Promise<string> {
 async function postFriendRequest(input: string) {
   try {
     const friend_id_string = await getFriendID(input);
+    if (!friend_id_string) {
+      alert("User not found!");
+      return;
+    }
     console.log(friend_id_string);
     console.log(user_id.value);
     const response = await axios({
@@ -82,10 +103,10 @@ async function postFriendRequest(input: string) {
   } catch (error) {
     console.error('Error posting friend request:', error);
     if (error.response.status == 409) {
-      alert("You're already friends!")
+      alert("You are already friends!")
     }
     else {
-      alert('An unexpected error occurred. Please try again later.');
+      //alert('An unexpected error occurred. Please try again later.');
     }
   }
 }
