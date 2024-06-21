@@ -10,12 +10,19 @@
       <slot />
     </div>
   </div>
+  <footer>
+    Quanta
+  </footer>
 </template>
 
 <style scoped>
+* {
+  font-family: Arial, Helvetica, sans-serif;
+}
 .auth-container {
   opacity: 0.5;
   display: flex;
+  min-height: 83.5vh;
   background-image: url('public/background.jpg');
   background-size: cover;
   align-items: center;
@@ -28,7 +35,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom: 2px solid #42A5F5;
 }
 .top-bar h1 {
   color: #fff;
@@ -52,11 +58,13 @@
 }
 footer{
   width: 100%;
-  height: 30px;
+  height: 2rem;
   background-color: #FFF8F8;
-  border-top: 2px solid #42A5F5;
-}
+  border-top: 2px solid #f3ebf1;
+  color:#dccfda;
+  text-align: center;
 
+}
 .auth-card {
   display: flex;
   margin: 48px 0px;
@@ -65,8 +73,11 @@ footer{
   justify-content: center;
   background-color: #FEEAEAEA;
   padding: 2rem;
-  border-radius: 20px;
+  border-radius: 50px;
   border: 1px solid #ccc;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-style: solid;
+  border-color: #895D5D;
+  border-width: 1px;
 }
 </style>

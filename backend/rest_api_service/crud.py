@@ -199,6 +199,20 @@ async def update_user_last_login(db: Session, id: int) -> None:
     except Exception:
         db.rollback()
         return None
+    
+
+async def change_password(db: Session, id: int, password_hash : str):
+    try:
+        user = await get_user_by_id(db, id)
+        if user:
+            user.password_hash = password_hash;
+            user.update_date = date.today()
+            db.commit()
+            db.refresh(user)
+            return user
+    except Exception:
+        db.rollback()
+        return None
 
 
 async def get_event_by_id(event_id: int, db: Session):

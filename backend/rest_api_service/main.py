@@ -13,6 +13,7 @@ import os
 from models import *
 from fastapi import FastAPI, HTTPException, status, Depends, Response
 from typing import Union
+from fastapi.middleware.cors import CORSMiddleware
 
 
 # Load environment variables from .env file
@@ -27,6 +28,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
 utc = pytz.UTC
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Dependency
@@ -119,7 +130,7 @@ async def login(login_schema: UserLoginSchema, response: Response, db: Session =
 
 
 @app.get("/users/get_user_by_id", tags=['User'], status_code=status.HTTP_200_OK)
-async def get_user_by_id(id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def get_user_by_id(id: int, response: Response, db: Session = Depends(get_db)):
     try:
         user = await crud.get_user_by_id(db, id)
         return user
@@ -130,7 +141,7 @@ async def get_user_by_id(id: int, response: Response, db: Session = Depends(get_
 
 
 @app.get("/users/get_user_by_username", tags=['User'], status_code=status.HTTP_200_OK)
-async def get_user_by_username(username: str, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def get_user_by_username(username: str, response: Response, db: Session = Depends(get_db)):
     try:
         user = await crud.get_user_by_username(db, username)
         return user
@@ -151,7 +162,7 @@ async def get_all_active_users(response: Response, db: Session = Depends(get_db)
 
 
 @app.get("/users/get_all_user_friends", tags=['User'], status_code=status.HTTP_200_OK)
-async def get_all_user_friends(user_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def get_all_user_friends(user_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         user = await crud.get_user_by_id(db, user_id)
         if user:
@@ -159,7 +170,7 @@ async def get_all_user_friends(user_id: int, response: Response, db: Session = D
             if user_friends:
                 return user_friends
             response.status_code = status.HTTP_404_NOT_FOUND
-            return {"message": "User user has no friends :("}
+            return {"message": "You don't have any friends!"}
         return {"message": "User not found"}
     except Exception as e:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -221,9 +232,20 @@ async def change_user_username(user_id: int, new_username: str, response: Respon
         return {"message": f"An error occurred: {e}"}
 
 
+@app.put("/users/change_password", tags=['User'], status_code=status.HTTP_200_OK)
+async def change_password(user_id: int, password: str, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+    try:
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=8))
+        user = await crud.change_password(db, user_id, hashed_password.decode('utf-8'))
+        return user
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"message": f"An error occurred: {e}"}
+    
+
 @app.post("/register", tags=['User'], status_code=status.HTTP_201_CREATED,
           response_model=UserRegisterResponse | ErrorOccured)
-async def register(user: UserRegisterSchema, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def register(user: UserRegisterSchema, response: Response, db: Session = Depends(get_db)):
     try:
         existing_user = await crud.get_user_by_username(db, user.username.lower())
 
@@ -390,7 +412,7 @@ async def delete_category(category_id: int, response: Response, db: Session = De
 
 
 @app.put("/friends/reject", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=Friendship|dict)
-async def reject_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def reject_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         friendship_res = await crud.alter_friend_request(db, sender_id, recipient_id, "rejected")
 
@@ -404,7 +426,7 @@ async def reject_friend_request(sender_id: int, recipient_id: int, response: Res
         return {"message": e.detail}
 
 @app.post("/friends/send", tags=['Friends'], status_code=status.HTTP_201_CREATED, response_model=Friendship|dict)
-async def send_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def send_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         if sender_id == recipient_id:
             raise HTTPException(status_code=409, detail='Cannot send request to self')
@@ -430,7 +452,7 @@ async def send_friend_request(sender_id: int, recipient_id: int, response: Respo
 
 
 @app.put("/friends/accept", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=Friendship|dict)
-async def accept_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def accept_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         friendship_res = await crud.alter_friend_request(db, sender_id, recipient_id, "accepted")
 
