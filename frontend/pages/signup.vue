@@ -1,34 +1,35 @@
 <script setup lang="ts">
+import axios from 'axios'
+import { ref } from 'vue'
+
 definePageMeta({
   layout: 'user',
 })
-import axios from 'axios';
-import { ref } from 'vue';
 
-const username = ref('');
-const email = ref('');
-const password = ref('');
-const repeatPassword = ref('');
-const birthday = ref('');
-const agreeTerms = ref(false);
+const username = ref('')
+const email = ref('')
+const password = ref('')
+const repeatPassword = ref('')
+const birthday = ref('')
+const agreeTerms = ref(false)
 
-const registerUser = async () => {
+async function registerUser() {
   try {
     const response = await axios.post('http://localhost:8000/register', {
       username: username.value,
       password: password.value,
       email: email.value,
       birthday: birthday.value,
-    });
-    if (response.status === 201) {
-      alert('Rejestracja zakończona pomyślnie!');
-    } else {
-      console.error('Błąd rejestracji:', response.data.message);
-    }
-  } catch (error) {
-    console.error('Wystąpił błąd podczas rejestracji:', error);
+    })
+    if (response.status === 201)
+      alert('Rejestracja zakończona pomyślnie!')
+    else
+      console.error('Błąd rejestracji:', response.data.message)
   }
-};
+  catch (error) {
+    console.error('Wystąpił błąd podczas rejestracji:', error)
+  }
+}
 </script>
 
 <template>
@@ -37,48 +38,51 @@ const registerUser = async () => {
     <form class="auth-form" @submit.prevent="registerUser">
       <div class="form-group">
         <label for="username">Username:</label>
-        <input id="username" type="text" v-model="username" required>
+        <input id="username" v-model="username" type="text" required>
       </div>
 
       <div class="form-group">
         <label for="email">E-Mail:</label>
-        <input id="email" type="text" v-model="email" required>
+        <input id="email" v-model="email" type="text" required>
       </div>
 
       <div class="group">
         <div class="form-group-one">
           <label for="password">Password:</label>
-          <input id="password" type="password" v-model="password" required>
+          <input id="password" v-model="password" type="password" required>
         </div>
 
         <div class="form-group-one">
           <label for="repeat-password">Repeat Password:</label>
-          <input id="repeat-password" type="password" v-model="repeatPassword" required>
+          <input id="repeat-password" v-model="repeatPassword" type="password" required>
         </div>
       </div>
 
       <div class="group">
         <div class="form-group-one">
           <label for="dob">Date of Birth:</label>
-          <input id="dob" type="date" v-model="birthday">
+          <input id="dob" v-model="birthday" type="date">
         </div>
 
         <div class="checkbox-container">
-          <input id="agree-terms" type="checkbox" v-model="agreeTerms">
+          <input id="agree-terms" v-model="agreeTerms" type="checkbox">
           <label for="agree-terms">I read and agree with the terms and conditions</label>
         </div>
       </div>
 
       <div class="button-container">
-        <button type="button" @click="goBack">Go Back</button>
-        <button type="submit">Register</button>
+        <button type="button" @click="goBack">
+          Go Back
+        </button>
+        <button type="submit">
+          Register
+        </button>
       </div>
     </form>
   </section>
 </template>
 
 <style scoped>
-
 .auth-form {
   display: flex;
   flex-direction: column;
