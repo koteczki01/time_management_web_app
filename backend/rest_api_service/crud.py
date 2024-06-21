@@ -1,7 +1,7 @@
 from typing import Type
 
 import models
-from models import DBUser, DBUserFriendship, Friendship as FriendshipModel
+from models import DBUser, DBUserFriendship
 from datetime import date, datetime
 
 
@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session, aliased
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import and_
-
 from schemas import Friendship
+from typing import Union
 
 
  
@@ -378,7 +378,7 @@ async def alter_friend_request(db: Session, sender_id: int, recipient_id: int, a
     friendship = await get_friend_request(db, sender_id=sender_id, recipient_id=recipient_id)
 
     if friendship:
-        if friendship.friendship_status in ['accepted', 'rejected']:
+        if friendship.friendship_status in ['accepted', 'rejected', 'cancelled']:
             return {"error": f"Friendship already {friendship.friendship_status}"}
 
         friendship.friendship_status = action
@@ -400,24 +400,3 @@ async def alter_friend_request(db: Session, sender_id: int, recipient_id: int, a
 
         return friendship
     return {"error": "Friend request not found"}
-
-async def cancel_friend_request(db: Session, sender_id: int, recipient_id: int) -> Union[Friendship, dict]:
-    try:
-        friendship = db.query(FriendshipModel).filter(
-            FriendshipModel.sender_id == sender_id,
-            FriendshipModel.recipient_id == recipient_id
-        ).first()
-
-        if not friendship:
-            return {"error": "Friend request does not exist"}
-
-
-        db.delete(friendship)
-        db.commit()
-
-        # Zwrca szczegóły anulowanego zaproszenia
-        return Friendship.from_orm(friendship)
-
-    except Exception as e:
-        db.rollback()
-        return {"error": str(e)}

@@ -48,16 +48,6 @@ class Friendship(BaseModel):
     friendship_status: str
 
 
-
-class Friendship(BaseModel):
-    id: int
-    sender_id: int
-    recipient_id: int
-
-    class Config:
-        orm_mode = True
-
-
 class UserSchema(BaseModel):
     user_id: int
     username: str

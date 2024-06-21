@@ -431,6 +431,7 @@ async def reject_friend_request(sender_id: int, recipient_id: int, response: Res
         response.status_code = e.status_code
         return {"message": e.detail}
 
+
 @app.post("/friends/send", tags=['Friends'], status_code=status.HTTP_201_CREATED, response_model=Friendship|dict)
 async def send_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
     try:
@@ -471,13 +472,11 @@ async def accept_friend_request(sender_id: int, recipient_id: int, response: Res
         response.status_code = e.status_code
         return {"message": e.detail}
 
-@app.delete("/friends/cancel", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=Union[Friendship, dict])
-async def cancel_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
-    try:
-        if current_user.id != sender_id:
-            raise HTTPException(status_code=403, detail="Not authorized to cancel this friend request")
 
-        friendship_res = await crud.cancel_friend_request(db, sender_id, recipient_id)
+@app.put("/friends/cancel", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=Friendship|dict)
+async def reject_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
+    try:
+        friendship_res = await crud.alter_friend_request(db, sender_id, recipient_id, "cancelled")
 
         if isinstance(friendship_res, dict) and friendship_res.get('error', None) is not None:
             raise HTTPException(status_code=409, detail=friendship_res['error'])
@@ -487,6 +486,3 @@ async def cancel_friend_request(sender_id: int, recipient_id: int, response: Res
     except HTTPException as e:
         response.status_code = e.status_code
         return {"message": e.detail}
-    except Exception as e:
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        return {"message": f"An error occurred: {e}"}
