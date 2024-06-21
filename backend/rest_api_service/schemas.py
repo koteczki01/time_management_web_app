@@ -2,6 +2,7 @@ from datetime import datetime
 from pydantic import EmailStr, BaseModel
 
 
+
 class UserRegisterResponse(BaseModel):
     user_id: int
     birthday: datetime
@@ -45,6 +46,16 @@ class Friendship(BaseModel):
     user1_id: int
     user2_id: int
     friendship_status: str
+
+
+
+class Friendship(BaseModel):
+    id: int
+    sender_id: int
+    recipient_id: int
+
+    class Config:
+        orm_mode = True
 
 
 class UserSchema(BaseModel):

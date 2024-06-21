@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import os
 from models import *
 from fastapi import FastAPI, HTTPException, status, Depends, Response
+from typing import Union
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -463,3 +464,23 @@ async def accept_friend_request(sender_id: int, recipient_id: int, response: Res
     except HTTPException as e:
         response.status_code = e.status_code
         return {"message": e.detail}
+
+@app.delete("/friends/cancel", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=Union[Friendship, dict])
+async def cancel_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+    try:
+        if current_user.id != sender_id:
+            raise HTTPException(status_code=403, detail="Not authorized to cancel this friend request")
+
+        friendship_res = await crud.cancel_friend_request(db, sender_id, recipient_id)
+
+        if isinstance(friendship_res, dict) and friendship_res.get('error', None) is not None:
+            raise HTTPException(status_code=409, detail=friendship_res['error'])
+
+        return friendship_res
+
+    except HTTPException as e:
+        response.status_code = e.status_code
+        return {"message": e.detail}
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"message": f"An error occurred: {e}"}
