@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { stringifyQuery } from 'vue-router'
 import Popup from '../components/friend_request_popup.vue'
+import Popup2 from '../components/change_password_popup.vue'
 
 definePageMeta({
   layout: 'view',
@@ -14,6 +15,7 @@ const email = ref('')
 const birthday = ref('')
 const friends_string = ref('')
 const isOpen = ref(false)
+const isOpen2 =ref(false)
 let submittedUsername = ''
 const friend_id = ref('')
 
@@ -159,9 +161,10 @@ function handleSubmit(value: string) {
       </div>
     </form>
     <div>
-      <button type="submit" class="change-button">
+      <button type="submit" class="change-button" @click="isOpen2 = true">
         Change Password
       </button>
+      <Popup2 v-if="isOpen2" :visible="isOpen2" @close="isOpen2 = false" @submit="handleSubmit" />
     </div>
   </div>
 
