@@ -1,3 +1,8 @@
+<script setup lang="ts">
+const numberOfFriends = ref(2)
+const numberOfRows = ref(numberOfFriends)
+</script>
+
 <template>
   <div class="top-bar">
     <div class="left-top-bar">
@@ -5,50 +10,88 @@
       <h1>Quanta</h1>
     </div>
     <div class="right-top-bar">
-      <button class="plus">+</button>
+      <button class="plus">
+        +
+      </button>
       <h1>Add</h1>
     </div>
   </div>
   <table>
     <tr>
-      <td id="friends">Friends</td>
-      <td id="calendar-bar">Monday</td>
-      <td id="calendar-bar">Tuesday</td>
-      <td id="calendar-bar">Wednesday</td>
-      <td id="calendar-bar">Thursday</td>
-      <td id="calendar-bar">Friday</td>
-      <td id="calendar-bar">Saturday</td>
-      <td id="calendar-bar">Sunday</td>
+      <td id="friends">
+        Friends
+      </td>
+      <td id="calendar-bar">
+        Monday
+      </td>
+      <td id="calendar-bar">
+        Tuesday
+      </td>
+      <td id="calendar-bar">
+        Wednesday
+      </td>
+      <td id="calendar-bar">
+        Thursday
+      </td>
+      <td id="calendar-bar">
+        Friday
+      </td>
+      <td id="calendar-bar">
+        Saturday
+      </td>
+      <td id="calendar-bar">
+        Sunday
+      </td>
     </tr>
   </table>
 
-  <table id="main-table" v-for="row in numberOfRows">
+  <table v-for="row in numberOfRows" id="main-table">
     <tr class="color">
-      <td rowspan="5" class="box" >
-         <h1 id="name">
-          <h1> </h1>
-          Natalia</h1>
+      <td rowspan="5" class="box">
+        <h1 id="name">
+          <h1 />
+          Natalia
+        </h1>
       </td>
-      <td ><div id="work"> Work </div></td> <td><div id="work"> Work </div></td><td><div id="work"> Work </div></td><td></td><td></td><td></td><td></td>
+      <td>
+        <div id="work">
+          Work
+        </div>
+      </td> <td>
+        <div id="work">
+          Work
+        </div>
+      </td><td>
+        <div id="work">
+          Work
+        </div>
+      </td><td /><td /><td /><td />
     </tr>
     <tr>
-      <td></td> <td></td><td></td><td></td><td></td><td></td><td></td>
+      <td /> <td /><td /><td /><td /><td /><td />
     </tr>
     <tr class="color">
-      <td></td> <td></td><td><div id="work"> Work </div></td><td></td><td></td><td></td><td></td>
+      <td /> <td /><td>
+        <div id="work">
+          Work
+        </div>
+      </td><td /><td /><td /><td />
     </tr>
     <tr>
-      <td></td> <td></td><td></td><td></td><td></td><td></td><td></td>
+      <td /> <td /><td /><td /><td /><td /><td />
     </tr>
     <tr class="color">
-      <td></td> <td></td><td></td><td></td><td><div id="work"> Work </div></td><td></td><td></td>
+      <td /> <td /><td /><td /><td>
+        <div id="work">
+          Work
+        </div>
+      </td><td /><td />
     </tr>
     <tr id="gap">
-      <td id="diff_color"></td>
-      <td colspan="7"></td>
+      <td id="diff_color" />
+      <td colspan="7" />
     </tr>
-
-  </table> 
+  </table>
 </template>
 
 <style>
@@ -104,7 +147,7 @@ td {
 }
 .gap{
   font-size: 65px;
-} 
+}
 .top-bar {
   width: 100%;
   height: 13vh;
@@ -119,7 +162,7 @@ td {
   color: #fff;
   -webkit-text-stroke: 1px rgb(85, 68, 76);
   text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
- 
+
 }
 .logo{
   height: 60px;
@@ -174,7 +217,7 @@ td {
   display: table-cell;
   justify-content: center;
   font-size: 35px;
-} 
+}
 #name {
   display: table-cell;
   justify-content: center;
@@ -187,9 +230,3 @@ td {
   background-color: #cfb2d4;
 }
 </style>
-
-<script setup lang="ts">
-
-const numberOfFriends = ref(2);
-const numberOfRows = ref(numberOfFriends);
-</script>

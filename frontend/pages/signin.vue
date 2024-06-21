@@ -1,35 +1,33 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import axios from 'axios';
-import { stringifyQuery } from 'vue-router';
+import { ref } from 'vue'
+import axios from 'axios'
 
 definePageMeta({
   layout: 'user',
-});
+})
 
-const username = ref('');
-const password = ref('');
-const user_id = useCookie('user_id');
+const username = ref('')
+const password = ref('')
+const user_id = useCookie('user_id')
 
-const login = async () => {
+async function login() {
   try {
     const response = await axios.post('http://localhost:8000/login', {
       username: username.value,
       password_hash: password.value,
-    });
-    console.log(response.data);
-    user_id.value = response.data['user_id'];
-    alert('Login successful');
-    
-  } catch (error) {
-    console.error(error);
-    if (error.response && error.response.status === 401) {
-      alert('Incorrect username or password');
-    } else {
-      alert('An error occurred. Please try again later.');
-    }
+    })
+    console.log(response.data)
+    user_id.value = response.data.user_id
+    alert('Login successful')
   }
-};
+  catch (error) {
+    console.error(error)
+    if (error.response && error.response.status === 401)
+      alert('Incorrect username or password')
+    else
+      alert('An error occurred. Please try again later.')
+  }
+}
 </script>
 
 <template>
@@ -37,12 +35,12 @@ const login = async () => {
   <form class="auth-form" @submit.prevent="login">
     <div class="form-group">
       <label for="user">User:</label>
-      <input id="user" type="text" v-model="username" required />
+      <input id="user" v-model="username" type="text" required>
     </div>
 
     <div class="form-group">
       <label for="password">Password:</label>
-      <input id="password" type="password" v-model="password" required />
+      <input id="password" v-model="password" type="password" required>
     </div>
 
     <div class="links">

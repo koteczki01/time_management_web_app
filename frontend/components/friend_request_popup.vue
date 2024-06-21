@@ -1,41 +1,45 @@
+<script>
+export default {
+  props: {
+    visible: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      inputValue: '',
+    }
+  },
+  methods: {
+    closePopup() {
+      this.$emit('close')
+    },
+    submit() {
+      this.$emit('submit', this.inputValue)
+      // this.closePopup();
+    },
+  },
+}
+</script>
+
 <template>
-    <div v-if="visible" class="popup-overlay" @click="closePopup">
-      <div class="popup-content" @click.stop>
-        <h2>Enter your friend's username</h2>
-        <div class="input-container">
-            <input type="text" v-model="inputValue" />
-        </div>
-        <button @click="submit">Add friend</button>
-        <button @click="closePopup">Close</button>
+  <div v-if="visible" class="popup-overlay" @click="closePopup">
+    <div class="popup-content" @click.stop>
+      <h2>Enter your friend's username</h2>
+      <div class="input-container">
+        <input v-model="inputValue" type="text">
       </div>
+      <button @click="submit">
+        Add friend
+      </button>
+      <button @click="closePopup">
+        Close
+      </button>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    props: {
-      visible: {
-        type: Boolean,
-        required: true,
-      },
-    },
-    data() {
-      return {
-        inputValue: '',
-      };
-    },
-    methods: {
-      closePopup() {
-        this.$emit('close');
-      },
-      submit() {
-        this.$emit('submit', this.inputValue);
-        //this.closePopup();
-      },
-    },
-  };
-  </script>
-  
+  </div>
+</template>
+
   <style scoped>
   .popup-overlay {
     position: fixed;
@@ -48,7 +52,7 @@
     justify-content: center;
     align-items: center;
   }
-  
+
   .popup-content {
     display: flex;
     margin: 48px 0px;
@@ -92,4 +96,3 @@ button {
   margin: 0.3rem;
 }
   </style>
-  

@@ -1,122 +1,121 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import axios from 'axios';
-import { stringifyQuery } from 'vue-router';
-import Popup from '../components/friend_request_popup.vue';
+import { ref } from 'vue'
+import axios from 'axios'
+import Popup from '../components/friend_request_popup.vue'
 
 definePageMeta({
   layout: 'view',
-});
+})
 
-const user_id = useCookie('user_id');
-const username = ref('');
-const email = ref('');
-const birthday = ref('');
-const friends_string = ref('');
-const isOpen = ref(false);
-let submittedUsername = '';
-const friend_id = ref('');
+const user_id = useCookie('user_id')
+const username = ref('')
+const email = ref('')
+const birthday = ref('')
+const friends_string = ref('')
+const isOpen = ref(false)
+let submittedUsername = ''
+const friend_id = ref('')
 
 interface Friend {
-  username: string;
+  username: string
 }
 
 try {
-axios({
-  method: "get",
-  url: "http://localhost:8000/users/get_user_by_id?id=" + user_id.value,
-  params: {
-    limit: 5
-  }
-}).then(function (response) {
-  console.log(response.data);
-  username.value = response.data['username'];
-  email.value = response.data['email'];
-  birthday.value = response.data['birthday'];
-});
+  axios({
+    method: 'get',
+    url: `http://localhost:8000/users/get_user_by_id?id=${user_id.value}`,
+    params: {
+      limit: 5,
+    },
+  }).then((response) => {
+    console.log(response.data)
+    username.value = response.data.username
+    email.value = response.data.email
+    birthday.value = response.data.birthday
+  })
 }
 catch (error) {
   console.error('Error fetching user ID:', error)
-  if (error.response.status == 422) {
-    alert("Failed to found user. Try logging in again.")
-  }
-  else {
-    alert("An unexpected user error occured. Please try again later.")
-  }
+  if (error.response.status == 422)
+    alert('Failed to found user. Try logging in again.')
+
+  else
+    alert('An unexpected user error occured. Please try again later.')
 }
 
 axios({
-  method: "get",
-  url: "http://localhost:8000/users/get_all_user_friends?user_id=" + user_id.value,
-}).then(function (response) {
-  //console.log(response.data);
-  const friends: Friend[] = response.data;
+  method: 'get',
+  url: `http://localhost:8000/users/get_all_user_friends?user_id=${user_id.value}`,
+}).then((response) => {
+  // console.log(response.data);
+  const friends: Friend[] = response.data
   friends.forEach((friend) => {
-    //console.log(`Username: ${friend.username}`);
-    friends_string.value = friends_string.value + friend.username + ` `;
-    //console.log(`lista friends: ${friends_string.value}`);
-});
-});
+    // console.log(`Username: ${friend.username}`);
+    friends_string.value = `${friends_string.value + friend.username} `
+    // console.log(`lista friends: ${friends_string.value}`);
+  })
+})
 
 async function getFriendID(input: string): Promise<string> {
   try {
     const response = await axios({
-      method: "get",
-      url:"http://localhost:8000/users/get_user_by_username?username=" + input
-    });
-    friend_id.value = response.data['user_id'];
-    return friend_id.value;
-  } catch (error) {
-      console.error('Error fetching friend ID:', error);
-      if (axios.isAxiosError(error)) {
-      if (error.response && error.response.status === 422) {
-        alert("User not found!");
-      } else {
-        alert("An unexpected error occurred. Please try again later.");
-      }
-    } else {
-      alert("User not found!");
+      method: 'get',
+      url: `http://localhost:8000/users/get_user_by_username?username=${input}`,
+    })
+    friend_id.value = response.data.user_id
+    return friend_id.value
+  }
+  catch (error) {
+    console.error('Error fetching friend ID:', error)
+    if (axios.isAxiosError(error)) {
+      if (error.response && error.response.status === 422)
+        alert('User not found!')
+      else
+        alert('An unexpected error occurred. Please try again later.')
     }
-      throw error
+    else {
+      alert('User not found!')
     }
+    throw error
+  }
 }
 
 async function postFriendRequest(input: string) {
   try {
-    const friend_id_string = await getFriendID(input);
+    const friend_id_string = await getFriendID(input)
     if (!friend_id_string) {
-      alert("User not found!");
-      return;
+      alert('User not found!')
+      return
     }
-    console.log(friend_id_string);
-    console.log(user_id.value);
+    console.log(friend_id_string)
+    console.log(user_id.value)
     const response = await axios({
-      method: "post",
-      url: "http://localhost:8000/friends/send?sender_id=" + user_id.value + "&recipient_id=" + friend_id_string,
-      //data: {
+      method: 'post',
+      url: `http://localhost:8000/friends/send?sender_id=${user_id.value}&recipient_id=${friend_id_string}`,
+      // data: {
       //  sender_id: user_id.value,
       //  recipient_id: friend_id_string
-      //}
-  });
-  console.log('Post response:', response.data);
-  alert("Succesfully added a friend!");
-  } catch (error) {
-    console.error('Error posting friend request:', error);
+      // }
+    })
+    console.log('Post response:', response.data)
+    alert('Succesfully added a friend!')
+  }
+  catch (error) {
+    console.error('Error posting friend request:', error)
     if (error.response.status == 409) {
-      alert("You are already friends!")
+      alert('You are already friends!')
     }
     else {
-      //alert('An unexpected error occurred. Please try again later.');
+      // alert('An unexpected error occurred. Please try again later.');
     }
   }
 }
 
 function handleSubmit(value: string) {
-  submittedUsername = value;
-  console.log('Submitted value:', submittedUsername);
-  postFriendRequest(submittedUsername);
+  submittedUsername = value
+  console.log('Submitted value:', submittedUsername)
+  postFriendRequest(submittedUsername)
 }
-
 </script>
 
 <template>
@@ -149,11 +148,11 @@ function handleSubmit(value: string) {
         </p>
       </div>
     </form>
-      <div>
-        <button type="submit" class="change-button">
-          Change Password
-        </button>
-      </div>
+    <div>
+      <button type="submit" class="change-button">
+        Change Password
+      </button>
+    </div>
   </div>
 
   <div class="friends-card">
@@ -177,10 +176,12 @@ function handleSubmit(value: string) {
         </p>
       </div>
     </form>
-      <div>
-        <button @click="isOpen = true" class="add-button">Add</button>
-        <Popup v-if="isOpen" :visible="isOpen" @close="isOpen = false" @submit="handleSubmit"/>
-      </div>
+    <div>
+      <button class="add-button" @click="isOpen = true">
+        Add
+      </button>
+      <Popup v-if="isOpen" :visible="isOpen" @close="isOpen = false" @submit="handleSubmit" />
+    </div>
   </div>
 </template>
 
