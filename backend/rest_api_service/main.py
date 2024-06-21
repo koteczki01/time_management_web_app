@@ -346,6 +346,7 @@ async def create_event_with_required_associations(event: EventRequest, response:
                                                   db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.create_event_with_required_associations(event=event, db=db)
+        return {"message": "created successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -355,6 +356,7 @@ async def create_event_with_required_associations(event: EventRequest, response:
 async def create_category(category: CategoryRequest, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.create_category(category=category, db=db)
+        return {"message": "created successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -365,6 +367,7 @@ async def update_event(event_id: int, changed_data: EventRequest, response: Resp
                        db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.update_event(event_id=event_id, changed_data=changed_data, db=db)
+        return {"message": "updated successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -375,6 +378,7 @@ async def update_category(category_id: int, changed_data: CategoryRequest, respo
                           db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.update_category(category_id=category_id, changed_data=changed_data, db=db)
+        return {"message": "updated successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -397,6 +401,7 @@ async def delete_event_and_associated_objects(user_id: int, event_id: int, respo
                                               db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.delete_event_and_associated_objects(user_id=user_id, event_id=event_id, db=db)
+        return {"message": "deleted successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -406,6 +411,7 @@ async def delete_event_and_associated_objects(user_id: int, event_id: int, respo
 async def delete_category(category_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.delete_category(category_id=category_id, db=db)
+        return {"message": "deleted successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
