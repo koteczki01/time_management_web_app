@@ -17,6 +17,8 @@ const friends_string = ref('')
 const isOpen = ref(false)
 const isOpen2 =ref(false)
 let submittedUsername = ''
+let submittedNewPassword = ''
+let submittedNewPassword2 = ''
 const friend_id = ref('')
 
 interface Friend {
@@ -91,7 +93,20 @@ async function getFriendID(input: string): Promise<string> {
     throw error
   }
 }
-
+async function postChangePassword(input: string) {
+  try {
+    const response = await axios({
+      method: 'post',
+      url: `http://localhost:8000/users/change_password?user_id=${user_id.value}&password=${input}`,
+    })
+    console.log('Post response:', response.data)
+    alert('Succesfully changed password!')
+  }
+  catch (error) {
+    console.error('Error changing password:', error)
+    alert('Unexpected error occured. Pleas try again later')
+  }
+}
 async function postFriendRequest(input: string) {
   try {
     const friend_id_string = await getFriendID(input)
@@ -122,11 +137,22 @@ async function postFriendRequest(input: string) {
     }
   }
 }
-
 function handleSubmit(value: string) {
   submittedUsername = value
   console.log('Submitted value:', submittedUsername)
   postFriendRequest(submittedUsername)
+}
+function handleSubmit2(value: string, value2: string) {
+  submittedNewPassword = value
+  submittedNewPassword2 = value2
+  console.log('Submitted value:', submittedNewPassword)
+  console.log('Submitted value2:', submittedNewPassword2)
+  if (submittedNewPassword == submittedNewPassword2) {
+    postChangePassword(submittedNewPassword)
+  }
+  else {
+    alert('Entered passwords are not the same')
+  }
 }
 </script>
 
@@ -164,7 +190,7 @@ function handleSubmit(value: string) {
       <button type="submit" class="change-button" @click="isOpen2 = true">
         Change Password
       </button>
-      <Popup2 v-if="isOpen2" :visible="isOpen2" @close="isOpen2 = false" @submit="handleSubmit" />
+      <Popup2 v-if="isOpen2" :visible="isOpen2" @close="isOpen2 = false" @submit="handleSubmit2" />
     </div>
   </div>
 

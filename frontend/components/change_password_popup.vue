@@ -1,49 +1,44 @@
 <template>
-    <div v-if="visible" class="popup-overlay" @click="closePopup">
-      <div class="popup-content" @click.stop>
-        <h2>Enter current password</h2>
-        <div class="input-container">
-            <input type="password" placeholder="Enter password" v-model="currentPassword" />
-        </div>
-        <h2>Create a new password</h2>
-        <div class="input-container">
-            <input type="password" placeholder="Enter new password" v-model="newPassword" />
-        </div>
-        <div class="input-container">
-            <input type="password" placeholder="Confirm password" v-model="newPassword2" />
-        </div>
-        <button @click="submit">Change password</button>
-        <button @click="closePopup">Close</button>
+  <div v-if="visible" class="popup-overlay" @click="closePopup">
+    <div class="popup-content" @click.stop>
+      <h2>Create a new password</h2>
+      <div class="input-container">
+        <input type="password" placeholder="Enter new password" v-model="newPassword" />
       </div>
+      <div class="input-container">
+        <input type="password" placeholder="Confirm password" v-model="newPassword2" />
+      </div>
+      <button @click="submit">Change password</button>
+      <button @click="closePopup">Close</button>
     </div>
-  </template>
+  </div>
+</template>
   
-  <script>
-  export default {
-    props: {
-      visible: {
-        type: Boolean,
-        required: true,
-      },
+<script>
+export default {
+  props: {
+    visible: {
+      type: Boolean,
+      required: true,
     },
-    data() {
-      return {
-        currentPassword: '',
-        newPassword: '',
-        newPassword2: '',
-      };
+  },
+  data() {
+    return {
+      newPassword: '',
+      newPassword2: '',
+    };
+  },
+  methods: {
+    closePopup() {
+      this.$emit('close');
     },
-    methods: {
-      closePopup() {
-        this.$emit('close');
-      },
-      submit() {
-        this.$emit('submit', this.currentPassword, this.newPassword, this.newPassword2);
-        //this.closePopup();
-      },
+    submit() {
+      this.$emit('submit', this.newPassword, this.newPassword2);
+      //this.closePopup();
     },
-  };
-  </script>
+  },
+};
+</script>
   
   <style scoped>
   .popup-overlay {
