@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import os
 from models import *
 from fastapi import FastAPI, HTTPException, status, Depends, Response
+from typing import Union
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -231,6 +232,17 @@ async def change_user_username(user_id: int, new_username: str, response: Respon
         return {"message": f"An error occurred: {e}"}
 
 
+@app.put("/users/change_password", tags=['User'], status_code=status.HTTP_200_OK)
+async def change_password(user_id: int, password: str, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+    try:
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=8))
+        user = await crud.change_password(db, user_id, hashed_password.decode('utf-8'))
+        return user
+    except Exception as e:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"message": f"An error occurred: {e}"}
+    
+
 @app.post("/register", tags=['User'], status_code=status.HTTP_201_CREATED,
           response_model=UserRegisterResponse | ErrorOccured)
 async def register(user: UserRegisterSchema, response: Response, db: Session = Depends(get_db)):
@@ -334,6 +346,7 @@ async def create_event_with_required_associations(event: EventRequest, response:
                                                   db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.create_event_with_required_associations(event=event, db=db)
+        return {"message": "created successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -343,6 +356,7 @@ async def create_event_with_required_associations(event: EventRequest, response:
 async def create_category(category: CategoryRequest, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.create_category(category=category, db=db)
+        return {"message": "created successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -353,6 +367,7 @@ async def update_event(event_id: int, changed_data: EventRequest, response: Resp
                        db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.update_event(event_id=event_id, changed_data=changed_data, db=db)
+        return {"message": "updated successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -363,6 +378,7 @@ async def update_category(category_id: int, changed_data: CategoryRequest, respo
                           db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.update_category(category_id=category_id, changed_data=changed_data, db=db)
+        return {"message": "updated successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -385,6 +401,7 @@ async def delete_event_and_associated_objects(user_id: int, event_id: int, respo
                                               db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.delete_event_and_associated_objects(user_id=user_id, event_id=event_id, db=db)
+        return {"message": "deleted successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -394,6 +411,7 @@ async def delete_event_and_associated_objects(user_id: int, event_id: int, respo
 async def delete_category(category_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
     try:
         await crud.delete_category(category_id=category_id, db=db)
+        return {"message": "deleted successfully"}
     except Exception as e:
         response.status_code = 500
         return {"message": f"An error occurred: {e}"}
@@ -412,6 +430,7 @@ async def reject_friend_request(sender_id: int, recipient_id: int, response: Res
     except HTTPException as e:
         response.status_code = e.status_code
         return {"message": e.detail}
+
 
 @app.post("/friends/send", tags=['Friends'], status_code=status.HTTP_201_CREATED, response_model=Friendship|dict)
 async def send_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
@@ -443,6 +462,21 @@ async def send_friend_request(sender_id: int, recipient_id: int, response: Respo
 async def accept_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         friendship_res = await crud.alter_friend_request(db, sender_id, recipient_id, "accepted")
+
+        if isinstance(friendship_res, dict) and friendship_res.get('error', None) is not None:
+            raise HTTPException(status_code=409, detail=friendship_res['error'])
+
+        return friendship_res
+
+    except HTTPException as e:
+        response.status_code = e.status_code
+        return {"message": e.detail}
+
+
+@app.put("/friends/cancel", tags=['Friends'], status_code=status.HTTP_200_OK, response_model=Friendship|dict)
+async def reject_friend_request(sender_id: int, recipient_id: int, response: Response, db: Session = Depends(get_db)):
+    try:
+        friendship_res = await crud.alter_friend_request(db, sender_id, recipient_id, "cancelled")
 
         if isinstance(friendship_res, dict) and friendship_res.get('error', None) is not None:
             raise HTTPException(status_code=409, detail=friendship_res['error'])

@@ -2,6 +2,7 @@ from datetime import datetime
 from pydantic import EmailStr, BaseModel
 
 
+
 class UserRegisterResponse(BaseModel):
     user_id: int
     birthday: datetime

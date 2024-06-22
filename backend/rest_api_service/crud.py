@@ -9,6 +9,9 @@ from sqlalchemy.orm import Session, aliased
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import and_
+from schemas import Friendship
+from typing import Union
+
 
  
 async def get_user_by_id(db: Session, user_id: int) -> models.DBUser | None:
@@ -196,6 +199,20 @@ async def update_user_last_login(db: Session, id: int) -> None:
     except Exception:
         db.rollback()
         return None
+    
+
+async def change_password(db: Session, id: int, password_hash : str):
+    try:
+        user = await get_user_by_id(db, id)
+        if user:
+            user.password_hash = password_hash;
+            user.update_date = date.today()
+            db.commit()
+            db.refresh(user)
+            return user
+    except Exception:
+        db.rollback()
+        return None
 
 
 async def get_event_by_id(event_id: int, db: Session):
@@ -229,7 +246,10 @@ async def get_all_events_by_user_id_ongoing_in_specified_time(user_id: int, star
 
 
 async def create_required_event_participants(db_event, db):
-    for participant in db_event.specify_participants:
+    participants = [db_event.created_by]
+    if db_event.privacy == "public":
+        participants.extend(await get_all_friends_of_user_by_user_id(db=db, user_id=db_event.created_by))
+    for participant in participants:
         db.add(models.DBEventParticipants(event_id=db_event.event_id, user_id=participant,
                                           participant_status="accepted" if participant == db_event.created_by
                                           else "pending",
@@ -358,7 +378,7 @@ async def alter_friend_request(db: Session, sender_id: int, recipient_id: int, a
     friendship = await get_friend_request(db, sender_id=sender_id, recipient_id=recipient_id)
 
     if friendship:
-        if friendship.friendship_status in ['accepted', 'rejected']:
+        if friendship.friendship_status in ['accepted', 'rejected', 'cancelled']:
             return {"error": f"Friendship already {friendship.friendship_status}"}
 
         friendship.friendship_status = action

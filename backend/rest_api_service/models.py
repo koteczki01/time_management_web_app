@@ -6,9 +6,11 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ENUM
 from datetime import datetime, timezone, timedelta
 
+
+
 # Define your ENUM types
 privacy_level = ENUM('public', 'private', name="privacy_level", create_type=False)
-status = ENUM('pending', 'accepted', 'rejected', name="status", create_type=False)
+status = ENUM('pending', 'accepted', 'rejected', 'cancelled', name="status", create_type=False)
 recurrence_rule = ENUM('daily', 'weekly', 'monthly', 'yearly', name="recurrence_rule", create_type=False)
 event_role = ENUM('host', 'member', name="event_role", create_type=False)
 
@@ -101,12 +103,6 @@ class DBEvent(Base):
     categories = relationship("DBCategory", secondary="db_event_category", back_populates="events")
     participants = relationship("DBEventParticipants", back_populates="event")
 
-    @property
-    def specify_participants(self):
-        if self.privacy == "private":
-            return [self.created_by]
-        if self.privacy == "public":
-            return [self.created_by]  # +friends# TODO: read it from db (pending) - I need to get friends :(
 
     def __init__(self, event_id, created_by, event_name, event_description, event_date_start, event_date_end,
                  event_location, privacy, recurrence, next_event_date):

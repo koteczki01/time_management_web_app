@@ -3,7 +3,7 @@
 
 -- CREATE TYPES
 CREATE TYPE privacy_level AS ENUM ('public', 'private');
-CREATE TYPE status AS ENUM ('pending', 'accepted', 'rejected');
+CREATE TYPE status AS ENUM ('pending', 'accepted', 'rejected', 'cancelled');
 CREATE TYPE recurrence_rule AS ENUM ('daily', 'weekly', 'monthly', 'yearly');
 CREATE TYPE event_role AS ENUM ('host', 'member');
 
