@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import axios from 'axios'
+import { stringifyQuery } from 'vue-router'
 import Popup from '../components/friend_request_popup.vue'
+import Popup2 from '../components/change_password_popup.vue'
 
 definePageMeta({
   layout: 'view',
@@ -13,20 +15,22 @@ const email = ref('')
 const birthday = ref('')
 const friends_string = ref('')
 const isOpen = ref(false)
+const isOpen2 =ref(false)
 let submittedUsername = ''
+let submittedNewPassword = ''
+let submittedNewPassword2 = ''
 const friend_id = ref('')
 
 interface Friend {
   username: string
 }
 
+const friends_list = ref<string[]>([])
+
 try {
   axios({
     method: 'get',
     url: `http://localhost:8000/users/get_user_by_id?id=${user_id.value}`,
-    params: {
-      limit: 5,
-    },
   }).then((response) => {
     console.log(response.data)
     username.value = response.data.username
@@ -50,11 +54,18 @@ axios({
   // console.log(response.data);
   const friends: Friend[] = response.data
   friends.forEach((friend) => {
-    // console.log(`Username: ${friend.username}`);
+    console.log(`Username: ${friend.username}`)
+    const friend_username = friend.username
     friends_string.value = `${friends_string.value + friend.username} `
-    // console.log(`lista friends: ${friends_string.value}`);
+    // friends_list.value.push(friend_username);
+    addFriend(friend.username)
   })
+  console.log(friends_list)
 })
+
+function addFriend(username: string) {
+  friends_list.value.push(username)
+}
 
 async function getFriendID(input: string): Promise<string> {
   try {
@@ -79,7 +90,21 @@ async function getFriendID(input: string): Promise<string> {
     throw error
   }
 }
-
+async function postChangePassword(input: string) {
+  try {
+    console.log(`http://localhost:8000/users/change_password?user_id=${user_id.value}&password=${input}`);
+    const response = await axios({
+      method: 'put',
+      url: `http://localhost:8000/users/change_password?user_id=${user_id.value}&password=${input}`,
+    })
+    console.log('Post response:', response.data)
+    alert('Succesfully changed password!')
+  }
+  catch (error) {
+    console.error('Error changing password:', error)
+    alert('Unexpected error occured. Please try again later')
+  }
+}
 async function postFriendRequest(input: string) {
   try {
     const friend_id_string = await getFriendID(input)
@@ -110,11 +135,22 @@ async function postFriendRequest(input: string) {
     }
   }
 }
-
 function handleSubmit(value: string) {
   submittedUsername = value
   console.log('Submitted value:', submittedUsername)
   postFriendRequest(submittedUsername)
+}
+function handleSubmit2(value: string, value2: string) {
+  submittedNewPassword = value
+  submittedNewPassword2 = value2
+  console.log('Submitted value:', submittedNewPassword)
+  console.log('Submitted value2:', submittedNewPassword2)
+  if (submittedNewPassword == submittedNewPassword2) {
+    postChangePassword(submittedNewPassword)
+  }
+  else {
+    alert('Entered passwords are not the same')
+  }
 }
 </script>
 
@@ -149,33 +185,22 @@ function handleSubmit(value: string) {
       </div>
     </form>
     <div>
-      <button type="submit" class="change-button">
+      <button type="submit" class="change-button" @click="isOpen2 = true">
         Change Password
       </button>
+      <Popup2 v-if="isOpen2" :visible="isOpen2" @close="isOpen2 = false" @submit="handleSubmit2" />
     </div>
   </div>
 
   <div class="friends-card">
     <h1>Friends</h1>
-    <form>
-      <div class="list">
-        <p class="text2">
-          {{ friends_string }}
-        </p>
+    <div class="scroll">
+      <div v-for="friend in friends_list" class="list">
+        <div class="text2">
+          {{ friend }}
+        </div>
       </div>
-
-      <div class="list">
-        <p class="text2">
-          Marcysia
-        </p>
-      </div>
-
-      <div class="list">
-        <p class="text2">
-          Piecharka
-        </p>
-      </div>
-    </form>
+    </div>
     <div>
       <button class="add-button" @click="isOpen = true">
         Add
@@ -186,19 +211,12 @@ function handleSubmit(value: string) {
 </template>
 
 <style scoped>
-.form {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin-bottom: 1rem;
-}
 
 .list {
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  flex-direction: column;
   width: 100%;
+  justify-content: center;
+  height: 5rem;
+  display: flex;
 }
 
 .change-button {
@@ -254,11 +272,14 @@ h1 {
   font-size: 3rem;
   -webkit-text-stroke: 1px rgb(85, 68, 76);
   text-shadow: 2px 2px 2px rgba(85, 68, 76, 0.6);
+  margin: 1rem;
 }
 
 label {
   color: #6F3C3C;
   font-size: 1.8rem;
+  padding-top: 1rem;
+  display: flex;
 }
 
 .text
@@ -272,6 +293,9 @@ label {
   font-size: 2rem;
   font-weight: bold;
   color: #542a2a;
+  justify-content: center;
+  display: flex;
+  padding: 5px;
 }
 
 .auth-card {
@@ -290,9 +314,34 @@ label {
     border-width: 1px;
   }
 
+  .scroll
+  {
+    overflow:auto;
+    overflow-x:hidden;
+    width: 16rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .scroll::-webkit-scrollbar {
+    width: 12px;
+    
+}
+
+.scroll::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
   .friends-card {
     display: flex;
     width: 15rem;
+    height: 25rem;
     margin: 48px 0px;
     flex-direction: column;
     align-items: center;

@@ -233,7 +233,7 @@ async def change_user_username(user_id: int, new_username: str, response: Respon
 
 
 @app.put("/users/change_password", tags=['User'], status_code=status.HTTP_200_OK)
-async def change_password(user_id: int, password: str, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def change_password(user_id: int, password: str, response: Response, db: Session = Depends(get_db)):
     try:
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=8))
         user = await crud.change_password(db, user_id, hashed_password.decode('utf-8'))
