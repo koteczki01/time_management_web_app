@@ -8,7 +8,6 @@ import Popup2 from '../components/change_password_popup.vue'
 definePageMeta({
   layout: 'view',
 })
-})
 
 const user_id = useCookie('user_id')
 const username = ref('')
@@ -24,7 +23,6 @@ const friend_id = ref('')
 
 interface Friend {
   username: string
-  username: string
 }
 
 const friends_list = ref<string[]>([])
@@ -33,21 +31,6 @@ try {
   axios({
     method: 'get',
     url: `http://localhost:8000/users/get_user_by_id?id=${user_id.value}`,
-    params: {
-      limit: 5,
-    },
-  }).then((response) => {
-    console.log(response.data)
-    username.value = response.data.username
-    email.value = response.data.email
-    birthday.value = response.data.birthday
-  })
-  axios({
-    method: 'get',
-    url: `http://localhost:8000/users/get_user_by_id?id=${user_id.value}`,
-    params: {
-      limit: 5,
-    },
   }).then((response) => {
     console.log(response.data)
     username.value = response.data.username
@@ -62,19 +45,9 @@ catch (error) {
 
   else
     alert('An unexpected user error occured. Please try again later.')
-  if (error.response.status == 422)
-    alert('Failed to found user. Try logging in again.')
-
-  else
-    alert('An unexpected user error occured. Please try again later.')
 }
 
 axios({
-  method: 'get',
-  url: `http://localhost:8000/users/get_all_user_friends?user_id=${user_id.value}`,
-}).then((response) => {
-  // console.log(response.data);
-  const friends: Friend[] = response.data
   method: 'get',
   url: `http://localhost:8000/users/get_all_user_friends?user_id=${user_id.value}`,
 }).then((response) => {
@@ -113,32 +86,15 @@ async function getFriendID(input: string): Promise<string> {
     }
     else {
       alert('User not found!')
-      method: 'get',
-      url: `http://localhost:8000/users/get_user_by_username?username=${input}`,
-    })
-    friend_id.value = response.data.user_id
-    return friend_id.value
-  }
-  catch (error) {
-    console.error('Error fetching friend ID:', error)
-    if (axios.isAxiosError(error)) {
-      if (error.response && error.response.status === 422)
-        alert('User not found!')
-      else
-        alert('An unexpected error occurred. Please try again later.')
     }
-    else {
-      alert('User not found!')
-    }
-    throw error
-  }
     throw error
   }
 }
 async function postChangePassword(input: string) {
   try {
+    console.log(`http://localhost:8000/users/change_password?user_id=${user_id.value}&password=${input}`);
     const response = await axios({
-      method: 'post',
+      method: 'put',
       url: `http://localhost:8000/users/change_password?user_id=${user_id.value}&password=${input}`,
     })
     console.log('Post response:', response.data)
@@ -146,27 +102,19 @@ async function postChangePassword(input: string) {
   }
   catch (error) {
     console.error('Error changing password:', error)
-    alert('Unexpected error occured. Pleas try again later')
+    alert('Unexpected error occured. Please try again later')
   }
 }
 async function postFriendRequest(input: string) {
   try {
     const friend_id_string = await getFriendID(input)
-    const friend_id_string = await getFriendID(input)
     if (!friend_id_string) {
-      alert('User not found!')
-      return
       alert('User not found!')
       return
     }
     console.log(friend_id_string)
     console.log(user_id.value)
-    console.log(friend_id_string)
-    console.log(user_id.value)
     const response = await axios({
-      method: 'post',
-      url: `http://localhost:8000/friends/send?sender_id=${user_id.value}&recipient_id=${friend_id_string}`,
-      // data: {
       method: 'post',
       url: `http://localhost:8000/friends/send?sender_id=${user_id.value}&recipient_id=${friend_id_string}`,
       // data: {
@@ -179,27 +127,15 @@ async function postFriendRequest(input: string) {
   }
   catch (error) {
     console.error('Error posting friend request:', error)
-      // }
-    })
-    console.log('Post response:', response.data)
-    alert('Succesfully added a friend!')
-  }
-  catch (error) {
-    console.error('Error posting friend request:', error)
     if (error.response.status == 409) {
-      alert('You are already friends!')
       alert('You are already friends!')
     }
     else {
-      // alert('An unexpected error occurred. Please try again later.');
       // alert('An unexpected error occurred. Please try again later.');
     }
   }
 }
 function handleSubmit(value: string) {
-  submittedUsername = value
-  console.log('Submitted value:', submittedUsername)
-  postFriendRequest(submittedUsername)
   submittedUsername = value
   console.log('Submitted value:', submittedUsername)
   postFriendRequest(submittedUsername)
@@ -258,18 +194,12 @@ function handleSubmit2(value: string, value2: string) {
 
   <div class="friends-card">
     <h1>Friends</h1>
-    <form class="scroll">
+    <div class="scroll">
       <div v-for="friend in friends_list" class="list">
-        <p class="text2">
+        <div class="text2">
           {{ friend }}
-        </p>
+        </div>
       </div>
-    </form>
-    <div>
-      <button class="add-button" @click="isOpen = true">
-        Add
-      </button>
-      <Popup v-if="isOpen" :visible="isOpen" @close="isOpen = false" @submit="handleSubmit" />
     </div>
     <div>
       <button class="add-button" @click="isOpen = true">
@@ -281,18 +211,12 @@ function handleSubmit2(value: string, value2: string) {
 </template>
 
 <style scoped>
-.form {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  margin-bottom: 1rem;
-}
 
 .list {
-  justify-content: center;
-  align-items: center;
   width: 100%;
-  margin-right: 1rem;
+  justify-content: center;
+  height: 5rem;
+  display: flex;
 }
 
 .change-button {
@@ -348,11 +272,14 @@ h1 {
   font-size: 3rem;
   -webkit-text-stroke: 1px rgb(85, 68, 76);
   text-shadow: 2px 2px 2px rgba(85, 68, 76, 0.6);
+  margin: 1rem;
 }
 
 label {
   color: #6F3C3C;
   font-size: 1.8rem;
+  padding-top: 1rem;
+  display: flex;
 }
 
 .text
@@ -366,6 +293,9 @@ label {
   font-size: 2rem;
   font-weight: bold;
   color: #542a2a;
+  justify-content: center;
+  display: flex;
+  padding: 5px;
 }
 
 .auth-card {
@@ -387,12 +317,15 @@ label {
   .scroll
   {
     overflow:auto;
-    overflow-x:hidden
-
+    overflow-x:hidden;
+    width: 16rem;
+    display: flex;
+    flex-direction: column;
   }
 
   .scroll::-webkit-scrollbar {
     width: 12px;
+    
 }
 
 .scroll::-webkit-scrollbar-track {
@@ -408,7 +341,7 @@ label {
   .friends-card {
     display: flex;
     width: 15rem;
-    height: 26rem;
+    height: 25rem;
     margin: 48px 0px;
     flex-direction: column;
     align-items: center;
