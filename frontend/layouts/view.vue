@@ -1,13 +1,30 @@
+<script setup lang="ts">
+const user_id = useCookie('user_id')
+
+function logOut()
+{
+  user_id.value = '';
+  window.location.href = '/signin'
+}
+function goBack()
+{
+  window.location.href = '/calendar'
+}
+</script>
+
 <template>
   <div class="top-bar">
     <div class="center-top-bar">
-      <button class="back-button">
+      <button class="back-button" @click="goBack">
         Go Back
       </button>
-      <div class="center-top-bar" style="border: 0px; margin-right: 9.9rem;">
+      <div class="center-top-bar" style="border: 0px;">
         <h1>Quanta</h1>
         <img src="public/image.png" alt="Quanta logo" class="logo">
       </div>
+      <button class="log-out-button" @click="logOut">
+        Log out
+      </button>
     </div>
   </div>
   <div class="auth-container">
@@ -105,6 +122,18 @@
   width: 9rem;
   height: 3rem;
   margin-left: 2rem;
+  border: none;
+  border-radius: 25px;
+  background-color: #9E7E9B;
+  color: white;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+.log-out-button{
+  padding: 0.3rem;
+  width: 9rem;
+  height: 3rem;
+  margin-right: 2rem;
   border: none;
   border-radius: 25px;
   background-color: #9E7E9B;
