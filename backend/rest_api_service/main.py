@@ -277,7 +277,7 @@ async def register(user: UserRegisterSchema, response: Response, db: Session = D
 
 
 @app.get("/event/get_all_participants", tags=['EventParticipants'], status_code=status.HTTP_200_OK)
-async def get_all_participants(response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def get_all_participants(response: Response, db: Session = Depends(get_db)):
     try:
         participants = await crud.get_all_participants(db)
 
@@ -289,7 +289,7 @@ async def get_all_participants(response: Response, db: Session = Depends(get_db)
 
 
 @app.get("/event", tags=['Event'], status_code=status.HTTP_200_OK)
-async def get_event_by_id(event_id, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def get_event_by_id(event_id, response: Response, db: Session = Depends(get_db)):
     try:
         event = await crud.get_event_by_id(event_id=event_id, db=db)
         return event
@@ -299,7 +299,7 @@ async def get_event_by_id(event_id, response: Response, db: Session = Depends(ge
 
 
 @app.get("/events/get_user_events", tags=['Event'], status_code=status.HTTP_200_OK)
-async def get_all_events_of_user_by_user_id(user_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def get_all_events_of_user_by_user_id(user_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         events = await crud.get_all_events_of_user_by_user_id(user_id=user_id, db=db)
         return events
@@ -309,7 +309,7 @@ async def get_all_events_of_user_by_user_id(user_id: int, response: Response, db
 
 
 @app.get("/event/crated_by", tags=['Event'], status_code=status.HTTP_200_OK)
-async def get_all_events_by_creator_id(user_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def get_all_events_by_creator_id(user_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         events = await crud.get_all_events_by_creator_id(user_id=user_id, db=db)
         return events
@@ -319,7 +319,7 @@ async def get_all_events_by_creator_id(user_id: int, response: Response, db: Ses
 
 
 @app.get("/event/participants", tags=['Event'], status_code=status.HTTP_200_OK)
-async def get_all_event_participants(event_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def get_all_event_participants(event_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         events = await crud.get_all_event_participants(event_id=event_id, db=db)
         return events
@@ -331,7 +331,7 @@ async def get_all_event_participants(event_id: int, response: Response, db: Sess
 @app.get("/events/range_of_time", tags=['Event'], status_code=status.HTTP_200_OK)
 async def get_all_events_by_user_id_ongoing_in_specified_time(user_id: int, start: datetime,
                                                               end: datetime, response: Response,
-                                                              db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+                                                              db: Session = Depends(get_db)):
     try:
         events = await crud.get_all_events_by_user_id_ongoing_in_specified_time(user_id=user_id, start=start, end=end,
                                                                                 db=db)
@@ -343,7 +343,7 @@ async def get_all_events_by_user_id_ongoing_in_specified_time(user_id: int, star
 
 @app.post("/event/create", tags=['Event'], status_code=status.HTTP_201_CREATED)
 async def create_event_with_required_associations(event: EventRequest, response: Response,
-                                                  db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+                                                  db: Session = Depends(get_db)):
     try:
         await crud.create_event_with_required_associations(event=event, db=db)
         return {"message": "created successfully"}
@@ -353,7 +353,7 @@ async def create_event_with_required_associations(event: EventRequest, response:
 
 
 @app.post("/category/create", tags=['Category'], status_code=status.HTTP_201_CREATED)
-async def create_category(category: CategoryRequest, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def create_category(category: CategoryRequest, response: Response, db: Session = Depends(get_db)):
     try:
         await crud.create_category(category=category, db=db)
         return {"message": "created successfully"}
@@ -364,7 +364,7 @@ async def create_category(category: CategoryRequest, response: Response, db: Ses
 
 @app.put("/event/update", tags=['Event'], status_code=status.HTTP_200_OK)
 async def update_event(event_id: int, changed_data: EventRequest, response: Response,
-                       db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+                       db: Session = Depends(get_db)):
     try:
         await crud.update_event(event_id=event_id, changed_data=changed_data, db=db)
         return {"message": "updated successfully"}
@@ -375,7 +375,7 @@ async def update_event(event_id: int, changed_data: EventRequest, response: Resp
 
 @app.put("/category/update", tags=['Category'], status_code=status.HTTP_200_OK)
 async def update_category(category_id: int, changed_data: CategoryRequest, response: Response,
-                          db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+                          db: Session = Depends(get_db)):
     try:
         await crud.update_category(category_id=category_id, changed_data=changed_data, db=db)
         return {"message": "updated successfully"}
@@ -386,7 +386,7 @@ async def update_category(category_id: int, changed_data: CategoryRequest, respo
 
 @app.put("/event/participants/accept_or_reject", tags=['EventParticipants'], status_code=status.HTTP_200_OK)
 async def accept_or_reject_participate_in_event(user_id: int, event_id: int, is_accepted: bool, response: Response,
-                                                db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+                                                db: Session = Depends(get_db)):
     try:
         res = await crud.accept_or_reject_participate_in_event(user_id=user_id, event_id=event_id,
                                                                 is_accepted=is_accepted, db=db)
@@ -398,7 +398,7 @@ async def accept_or_reject_participate_in_event(user_id: int, event_id: int, is_
 
 @app.delete("/event/delete", tags=['Event'], status_code=status.HTTP_200_OK)
 async def delete_event_and_associated_objects(user_id: int, event_id: int, response: Response,
-                                              db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+                                              db: Session = Depends(get_db)):
     try:
         await crud.delete_event_and_associated_objects(user_id=user_id, event_id=event_id, db=db)
         return {"message": "deleted successfully"}
@@ -408,7 +408,7 @@ async def delete_event_and_associated_objects(user_id: int, event_id: int, respo
 
 
 @app.delete("/category/delete", tags=['Category'], status_code=status.HTTP_200_OK)
-async def delete_category(category_id: int, response: Response, db: Session = Depends(get_db), current_user: UserSchema = Depends(get_current_user)):
+async def delete_category(category_id: int, response: Response, db: Session = Depends(get_db)):
     try:
         await crud.delete_category(category_id=category_id, db=db)
         return {"message": "deleted successfully"}
