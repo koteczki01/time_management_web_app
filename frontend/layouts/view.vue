@@ -1,6 +1,9 @@
 <script setup lang="ts">
+const user_id = useCookie('user_id')
+
 function logOut()
 {
+  user_id.value = '';
   window.location.href = '/signin'
 }
 function goBack()

@@ -21,11 +21,20 @@ let submittedNewPassword = ''
 let submittedNewPassword2 = ''
 const friend_id = ref('')
 
+const router = useRouter();
+
 interface Friend {
   username: string
 }
 
 const friends_list = ref<string[]>([])
+
+// Redirect to /signin if user_id is empty
+onMounted(() => {
+  if (!user_id.value) {
+    router.push('/signin')
+  }
+})
 
 try {
   axios({

@@ -21,8 +21,10 @@ async function registerUser() {
       email: email.value,
       birthday: birthday.value,
     })
-    if (response.status === 201)
+    if (response.status === 201) {
       alert('Rejestracja zakończona pomyślnie!')
+      window.location.href = '/signin'
+    }
     else
       console.error('Błąd rejestracji:', response.data.message)
   }
@@ -30,6 +32,12 @@ async function registerUser() {
     console.error('Wystąpił błąd podczas rejestracji:', error)
   }
 }
+
+function goBack()
+{
+  window.location.href = '/signin'
+}
+
 </script>
 
 <template>

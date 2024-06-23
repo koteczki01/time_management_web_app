@@ -19,6 +19,7 @@ async function login() {
     console.log(response.data)
     user_id.value = response.data.user_id
     alert('Login successful')
+    window.location.href = '/calendar'
   }
   catch (error) {
     console.error(error)
@@ -45,7 +46,7 @@ async function login() {
 
     <div class="links">
       <a href="#" class="forgot-password">Forgot Password?</a>
-      <a href="#" class="create-account">Create an account!</a>
+      <a href="/signup" class="create-account">Create an account!</a>
     </div>
     <div class="login-button-container">
       <button type="submit" class="login-button">

@@ -1,6 +1,17 @@
 <script setup lang="ts">
+const user_id = useCookie('user_id')
 const numberOfFriends = ref(2)
 const numberOfRows = ref(numberOfFriends)
+
+const router = useRouter();
+
+// Redirect to /signin if user_id is empty
+onMounted(() => {
+  if (!user_id.value) {
+    router.push('/signin')
+  }
+})
+
 </script>
 
 <template>
