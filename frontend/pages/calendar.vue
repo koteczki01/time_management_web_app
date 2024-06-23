@@ -1,115 +1,106 @@
 <script setup lang="ts">
 const user_id = useCookie('user_id')
-const numberOfFriends = ref(2)
-const numberOfRows = ref(numberOfFriends)
-
-const router = useRouter();
+const events = ref([])
+const isOpen = ref(false)
+const router = useRouter()
 
 // Redirect to /signin if user_id is empty
-onMounted(() => {
-  if (!user_id.value) {
+onMounted(async () => {
+  if (!user_id.value)
     router.push('/signin')
-  }
+  else
+    await fetchUserEvents()
 })
 
+async function fetchUserEvents() {
+  try {
+    const response = await fetch(`http://localhost:8000/events/get_user_events?user_id=${user_id.value}`)
+    if (response.ok)
+      events.value = await response.json()
+    else
+      console.error('Failed to fetch events')
+  }
+  catch (error) {
+    console.error('Error fetching events:', error)
+  }
+}
+
+function submitEvent(newEvent) {
+  events.value.push(newEvent)
+  isOpen.value = false
+}
+
+function getDayOfWeek(dateString) {
+  const date = new Date(dateString)
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  return days[date.getDay()]
+}
 </script>
 
 <template>
-  <div class="top-bar">
-    <div class="left-top-bar">
-      <img src="public/image.png" alt="Quanta logo" class="logo">
-      <h1>Quanta</h1>
+  <div>
+    <div class="top-bar">
+      <div class="left-top-bar">
+        <img src="public/image.png" alt="Quanta logo" class="logo">
+        <h1>Quanta</h1>
+      </div>
+      <div class="right-top-bar">
+        <button class="plus" @click="isOpen = true">
+          +
+        </button>
+        <h1>Add</h1>
+      </div>
+      <AddEventPopup :visible="isOpen" @close="isOpen = false" @submit="submitEvent" />
     </div>
-    <div class="right-top-bar">
-      <button class="plus">
-        +
-      </button>
-      <h1>Add</h1>
-    </div>
-  </div>
-  <table>
-    <tr>
-      <td id="friends">
-        Friends
-      </td>
-      <td id="calendar-bar">
-        Monday
-      </td>
-      <td id="calendar-bar">
-        Tuesday
-      </td>
-      <td id="calendar-bar">
-        Wednesday
-      </td>
-      <td id="calendar-bar">
-        Thursday
-      </td>
-      <td id="calendar-bar">
-        Friday
-      </td>
-      <td id="calendar-bar">
-        Saturday
-      </td>
-      <td id="calendar-bar">
-        Sunday
-      </td>
-    </tr>
-  </table>
 
-  <table v-for="row in numberOfRows" id="main-table">
-    <tr class="color">
-      <td rowspan="5" class="box">
-        <h1 id="name">
-          <h1 />
-          Natalia
-        </h1>
-      </td>
-      <td>
-        <div id="work">
-          Work
-        </div>
-      </td> <td>
-        <div id="work">
-          Work
-        </div>
-      </td><td>
-        <div id="work">
-          Work
-        </div>
-      </td><td /><td /><td /><td />
-    </tr>
-    <tr>
-      <td /> <td /><td /><td /><td /><td /><td />
-    </tr>
-    <tr class="color">
-      <td /> <td /><td>
-        <div id="work">
-          Work
-        </div>
-      </td><td /><td /><td /><td />
-    </tr>
-    <tr>
-      <td /> <td /><td /><td /><td /><td /><td />
-    </tr>
-    <tr class="color">
-      <td /> <td /><td /><td /><td>
-        <div id="work">
-          Work
-        </div>
-      </td><td /><td />
-    </tr>
-    <tr id="gap">
-      <td id="diff_color" />
-      <td colspan="7" />
-    </tr>
-  </table>
+    <table>
+      <tr>
+        <td id="friends">
+          Friends
+        </td>
+        <td id="calendar-bar">
+          Monday
+        </td>
+        <td id="calendar-bar">
+          Tuesday
+        </td>
+        <td id="calendar-bar">
+          Wednesday
+        </td>
+        <td id="calendar-bar">
+          Thursday
+        </td>
+        <td id="calendar-bar">
+          Friday
+        </td>
+        <td id="calendar-bar">
+          Saturday
+        </td>
+        <td id="calendar-bar">
+          Sunday
+        </td>
+      </tr>
+      <tr>
+        <td />
+        <td v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']" :key="day">
+          <div v-if="events.length > 0">
+            <div v-for="event in events" :key="event.event_id">
+              <template v-if="getDayOfWeek(event.event_date_end) === day">
+                {{ event.event_name }}
+              </template>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
 </template>
 
 <style>
-body{
+body {
   margin: 0;
 }
-table, th, td,tr {
+table, th, td, tr {
   border-right: 2px solid #CCB2C6;
   border-bottom: 2px solid #CCB2C6;
   text-align: center;
@@ -120,45 +111,20 @@ table, th, td,tr {
   font-size: 1.7rem;
 }
 
-#work{
-  background-color:#1569df39;
-  border-radius:40px ;
+#work {
+  background-color: #1569df39;
+  border-radius: 40px;
 }
 
 table {
   border-collapse: collapse;
-  width:100%;
+  width: 100%;
 }
 td {
   height: 40px;
-  width:12.5%;
+  width: 12.5%;
 }
 
-.main-content {
-  display: flex;
-}
-.box{
-  background-color: #cfb2d4;
-}
-#main-table{
-  border-collapse: collapse;
-}
-#diff_color{
-  background-color: #FFE8E8;
-}
-.main-calendar{
-  display:inline-grid;
-  width:100%;
-  grid-template-columns: repeat(8, 100px);
-  grid-template-rows: repeat(auto-fill, 100px);
-  /* border-right: 2px solid #CCB2C6; */
-}
-.color{
-  background-color: #cfb2d439;
-}
-.gap{
-  font-size: 65px;
-}
 .top-bar {
   width: 100%;
   height: 13vh;
@@ -168,18 +134,16 @@ td {
   align-items: center;
   border-bottom: 2px solid #CCB2C6;
 }
-.top-bar h1,
-.top-bar plus {
+.top-bar h1, .top-bar plus {
   color: #fff;
   -webkit-text-stroke: 1px rgb(85, 68, 76);
   text-shadow: 2px 2px 2px rgb(85, 68, 76, 0.6);
-
 }
-.logo{
+.logo {
   height: 60px;
   margin: 20px;
 }
-.left-top-bar{
+.left-top-bar {
   font-size: 1.7rem;
   width: 100%;
   height: 10%;
@@ -189,7 +153,7 @@ td {
   justify-content: left;
   align-items: center;
 }
-.right-top-bar{
+.right-top-bar {
   width: 100%;
   height: 10%;
   background-color: #FFE8E8;
@@ -222,22 +186,11 @@ td {
   width: 12.5%;
   font-size: 35px;
 }
-#friends{
+#friends {
   background-color: #FFE8E8;
   width: 12.5%;
   display: table-cell;
   justify-content: center;
   font-size: 35px;
-}
-#name {
-  display: table-cell;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 0;
-  margin-left: 0;
-  height: 33vh;
-  font-size:40px;
-  text-align: center;
-  background-color: #cfb2d4;
 }
 </style>
