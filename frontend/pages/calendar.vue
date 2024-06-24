@@ -1,8 +1,26 @@
 <script setup lang="ts">
+import axios from 'axios'
+
 const user_id = useCookie('user_id')
 const events = ref([])
+const friend_events = ref([])
 const isOpen = ref(false)
+const username = ref('')
 const router = useRouter()
+
+let friend_events_list = ref([])
+
+const friends_list = ref<FriendObj[]>([])
+const friends_id_list = ref<string[]>([])
+
+class FriendObj {
+        public user_id: string;
+        public username: string;
+        constructor(user_id: string, username: string) {
+          this.user_id  =user_id;
+          this.username = username;
+        }
+      }
 
 // Redirect to /signin if user_id is empty
 onMounted(async () => {
@@ -10,7 +28,54 @@ onMounted(async () => {
     router.push('/signin')
   else
     await fetchUserEvents()
+
+  axios({
+    method: 'get',
+    url: `http://localhost:8000/users/get_all_user_friends?user_id=${user_id.value}`,
+  }).then((response) => {
+    console.log(response.data);
+    const friends: Friend[] = response.data
+    friends.forEach((friend) => {
+      console.log(`Username: ${friend.username}`)
+      const friend_username = friend.username
+      // friends_list.value.push(friend_username);
+      friends_list.value.push(new FriendObj(friend.user_id, friend.username))
+      console.log('FRIEND OBJ:', friends_list)
+      
+      addFriendID(friend.user_id)
+    })
+    console.log(friends_list)
+    console.log(friends_id_list)
+    //fetchFriendsEvents()
+  })
+
+  try {
+    axios({
+      method: 'get',
+      url: `http://localhost:8000/users/get_user_by_id?id=${user_id.value}`,
+    }).then((response) => {
+      console.log(response.data)
+      username.value = response.data.username
+    })
+  }
+  catch (error) {
+    console.error('Error fetching user ID:', error)
+    if (error.response.status == 422)
+      alert('Failed to found user. Try logging in again.')
+
+    else
+      alert('An unexpected user error occured. Please try again later.')
+  }
+
 })
+
+function addFriend(username: string) {
+  friends_list.value.push(username)
+}
+
+function addFriendID(id: string) {
+  friends_id_list.value.push(id)
+}
 
 async function fetchUserEvents() {
   try {
@@ -23,6 +88,25 @@ async function fetchUserEvents() {
   catch (error) {
     console.error('Error fetching events:', error)
   }
+}
+
+async function fetchFriendsEvents(id: string) {
+  //console.log(`Friends_id_list:`, friends_id_list)
+    console.log(`Fetching friend_id: ${id} events in progress.`)
+    try {
+      const response = await fetch(`http://localhost:8000/events/get_user_events?user_id=${id}`)
+      if (response.ok)
+      {
+        friend_events.value = await response.json()
+        return friend_events;
+      }
+      else
+        console.error('Failed to fetch events')
+    }
+    catch (error) {
+      console.error('Error fetching events:', error)
+    }
+  console.log(`Friends events:`, friend_events)
 }
 
 function goProfile() {
@@ -97,10 +181,22 @@ function getDayOfWeek(dateString) {
         </td>
       </tr>
       <tr>
-        <td />
+        <td>{{ username }}</td>
         <td v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']" :key="day">
           <div v-if="events.length > 0">
             <div v-for="event in events" :key="event.event_id">
+              <template v-if="getDayOfWeek(event.event_date_start) === day">
+                {{ event.event_name }}
+              </template>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr v-for="friend in friends_list">
+        <td>{{ friend.username }}</td>
+        <td v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']" :key="day">
+          <div>
+            <div v-for="event in friend_events" :key="event.event_id">
               <template v-if="getDayOfWeek(event.event_date_start) === day">
                 {{ event.event_name }}
               </template>
