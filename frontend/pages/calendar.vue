@@ -25,6 +25,16 @@ async function fetchUserEvents() {
   }
 }
 
+function goProfile() {
+  window.location.href = '/user_view'
+}
+
+function logOut()
+{
+  user_id.value = '';
+  window.location.href = '/signin'
+}
+
 function submitEvent(newEvent) {
   events.value.push(newEvent)
   isOpen.value = false
@@ -49,6 +59,12 @@ function getDayOfWeek(dateString) {
           +
         </button>
         <h1>Add</h1>
+        <button class="imageContainer" @click="goProfile">
+          <img src="public/default_profile.png">
+        </button>
+        <button class="log-out-button" @click="logOut">
+          Log out
+        </button>
       </div>
       <AddEventPopup :visible="isOpen" @close="isOpen = false" @submit="submitEvent" />
     </div>
@@ -85,7 +101,7 @@ function getDayOfWeek(dateString) {
         <td v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']" :key="day">
           <div v-if="events.length > 0">
             <div v-for="event in events" :key="event.event_id">
-              <template v-if="getDayOfWeek(event.event_date_end) === day">
+              <template v-if="getDayOfWeek(event.event_date_start) === day">
                 {{ event.event_name }}
               </template>
             </div>
@@ -192,5 +208,34 @@ td {
   display: table-cell;
   justify-content: center;
   font-size: 35px;
+}
+.imageContainer {
+    width: 5rem;
+    height: 5rem;
+    border-color: #542a2a;
+    border-style: dotted;
+    border-radius: 50%;
+    margin-left: 2rem;
+    margin-right: 2rem;
+    cursor: pointer;
+  }
+  .imageContainer img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  .log-out-button{
+  padding: 0.3rem;
+  width: 9rem;
+  height: 3rem;
+  margin-right: 1rem;
+  border: none;
+  border-radius: 25px;
+  background-color: #9E7E9B;
+  color: white;
+  cursor: pointer;
+  font-size: 1.5rem;
 }
 </style>

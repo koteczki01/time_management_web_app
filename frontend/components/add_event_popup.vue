@@ -14,7 +14,7 @@ export default {
       eventDescription: 'Default event description',
       eventDateEnd: '2024-06-23T15:00:00', // Mockup end date
       eventLocation: 'Default location',
-      privacy: 'public', // or 'private'
+      privacy: 'private', // or 'private'
       recurrence: 'daily', // or 'weekly', 'monthly', 'yearly'
       nextEventDate: '2024-06-24T13:00:00', // Mockup next event date
       categories: [],
@@ -49,8 +49,10 @@ export default {
         .then((data) => {
           this.$emit('submit', data)
         // this.closePopup();
+        alert("Event added.")
         })
         .catch((error) => {
+          alert("An unexpected error occured. Please try again later.")
           console.error('Error:', error)
         })
     },
