@@ -19,7 +19,7 @@ async function login() {
     console.log(response.data)
     user_id.value = response.data.user_id
     alert('Login successful')
-    window.location.href = '/calendar'
+    window.location.href = '/'
   }
   catch (error) {
     console.error(error)

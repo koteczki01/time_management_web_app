@@ -8,7 +8,7 @@ function logOut()
 }
 function goBack()
 {
-  window.location.href = '/calendar'
+  window.location.href = '/'
 }
 </script>
 
